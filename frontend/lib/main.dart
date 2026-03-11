@@ -5,6 +5,8 @@ import 'package:news_app_clean_architecture/config/routes/routes.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/remote/remote_article_event.dart';
 import 'firebase_options.dart';
 import 'config/theme/app_themes.dart';
+import 'config/theme/theme_cubit.dart';
+import 'config/theme/theme_state.dart';
 import 'features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
@@ -28,6 +30,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<ThemeCubit>(
+          create: (context) => ThemeCubit()..init(),
+        ),
         BlocProvider<AuthBloc>(
           create: (context) => sl<AuthBloc>()..add(const CheckAuthStatus()),
         ),
@@ -39,10 +44,16 @@ class MyApp extends StatelessWidget {
           create: (context) => sl<UserArticlesBloc>(),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: theme(),
-        onGenerateRoute: AppRoutes.onGenerateRoutes,
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: lightTheme(),
+            darkTheme: darkTheme(),
+            themeMode: themeState.materialThemeMode,
+            onGenerateRoute: AppRoutes.onGenerateRoutes,
+          );
+        },
       ),
     );
   }

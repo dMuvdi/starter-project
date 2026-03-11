@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../config/theme/theme_cubit.dart';
+import '../../../../config/theme/theme_state.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -8,7 +11,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _isDarkMode = false;
   String _selectedLanguage = 'English';
 
   final List<String> _languages = [
@@ -23,15 +25,20 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Settings',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       body: ListView(
@@ -54,7 +61,7 @@ class _SettingsPageState extends State<SettingsPage> {
         title,
         style: TextStyle(
           fontSize: 12,
-          color: Colors.grey[600],
+          color: Theme.of(context).textTheme.bodySmall?.color,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
@@ -63,48 +70,48 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildThemeTile() {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: const Color(0xFF3B5BDB).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Icon(Icons.dark_mode_outlined, color: Color(0xFF3B5BDB)),
-      ),
-      title: const Text(
-        'Dark Mode',
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-        ),
-      ),
-      subtitle: Text(
-        _isDarkMode ? 'On' : 'Off',
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.grey[600],
-        ),
-      ),
-      trailing: Switch(
-        value: _isDarkMode,
-        onChanged: (value) {
-          setState(() {
-            _isDarkMode = value;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Dark mode ${value ? 'enabled' : 'disabled'}. Theme switching coming soon!',
-              ),
-              duration: const Duration(seconds: 2),
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, state) {
+        final isDark = state.isDarkMode;
+        final primaryColor = Theme.of(context).primaryColor;
+        
+        return ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+          leading: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-          );
-        },
-        activeColor: const Color(0xFF3B5BDB),
-      ),
+            child: Icon(
+              isDark ? Icons.dark_mode : Icons.light_mode,
+              color: primaryColor,
+            ),
+          ),
+          title: Text(
+            'Dark Mode',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+            ),
+          ),
+          subtitle: Text(
+            isDark ? 'On' : 'Off',
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+          ),
+          trailing: Switch(
+            value: isDark,
+            onChanged: (value) {
+              context.read<ThemeCubit>().toggleTheme();
+            },
+            activeColor: primaryColor,
+          ),
+        );
+      },
     );
   }
 
@@ -120,26 +127,31 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         child: const Icon(Icons.language, color: Colors.orange),
       ),
-      title: const Text(
+      title: Text(
         'Language',
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
         ),
       ),
       subtitle: Text(
         _selectedLanguage,
         style: TextStyle(
           fontSize: 12,
-          color: Colors.grey[600],
+          color: Theme.of(context).textTheme.bodySmall?.color,
         ),
       ),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: Theme.of(context).textTheme.bodySmall?.color,
+      ),
       onTap: () => _showLanguageBottomSheet(),
     );
   }
 
   void _showLanguageBottomSheet() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -152,14 +164,14 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 child: Text(
                   'Select Language',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: isDark ? Colors.white : Colors.black87,
                   ),
                 ),
               ),
@@ -174,17 +186,19 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _buildLanguageOption(String language) {
     final isSelected = language == _selectedLanguage;
+    final primaryColor = Theme.of(context).primaryColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24),
       title: Text(
         language,
         style: TextStyle(
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          color: isSelected ? const Color(0xFF3B5BDB) : Colors.black87,
+          color: isSelected ? primaryColor : (isDark ? Colors.white : Colors.black87),
         ),
       ),
-      trailing:
-          isSelected ? const Icon(Icons.check, color: Color(0xFF3B5BDB)) : null,
+      trailing: isSelected ? Icon(Icons.check, color: primaryColor) : null,
       onTap: () {
         setState(() {
           _selectedLanguage = language;

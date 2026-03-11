@@ -58,6 +58,9 @@ dependencies:
   #Image picker for article cover
   image_picker: ^1.0.7
 
+  #Local storage for preferences
+  shared_preferences: ^2.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

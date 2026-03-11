@@ -5,25 +5,25 @@ class AppColors {
   // Primary
   static const Color primaryLight = Color(0xFF3B5BDB);
   static const Color primaryDark = Color(0xFF5C7CFA);
-  
+
   // Background
   static const Color backgroundLight = Colors.white;
   static const Color backgroundDark = Color(0xFF121212);
-  
+
   // Surface
   static const Color surfaceLight = Color(0xFFF5F5F5);
   static const Color surfaceDark = Color(0xFF1E1E1E);
-  
+
   // Card
   static const Color cardLight = Colors.white;
   static const Color cardDark = Color(0xFF2C2C2C);
-  
+
   // Text
   static const Color textPrimaryLight = Color(0xDD000000); // Colors.black87
   static const Color textPrimaryDark = Colors.white;
   static const Color textSecondaryLight = Color(0x99000000); // Colors.black60
   static const Color textSecondaryDark = Color(0x99FFFFFF); // Colors.white60
-  
+
   // Divider
   static const Color dividerLight = Color(0x1F000000);
   static const Color dividerDark = Color(0x1FFFFFFF);

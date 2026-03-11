@@ -53,18 +53,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark ? Colors.white : Colors.black;
+
     return AppBar(
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        icon: Icon(Icons.arrow_back, color: iconColor),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text(
+      title: Text(
         'Profile',
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+        style: TextStyle(color: iconColor, fontWeight: FontWeight.w600),
       ),
       actions: [
         PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Colors.black),
+          icon: Icon(Icons.more_vert, color: iconColor),
           onSelected: (value) {
             if (value == 'edit') {
               // Navigate to edit profile
@@ -97,6 +100,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileHeader(UserEntity user) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return Column(
       children: [
         // Profile Avatar
@@ -108,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: const Color(0xFFF5C9A0),
-                border: Border.all(color: Colors.white, width: 4),
+                border: Border.all(color: isDark ? Colors.grey[800]! : Colors.white, width: 4),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
@@ -156,10 +163,10 @@ class _ProfilePageState extends State<ProfilePage> {
         // Name
         Text(
           user.displayName ?? 'User',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: textColor,
           ),
         ),
         const SizedBox(height: 4),
@@ -180,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
             'Independent journalist covering the intersection of emerging technology, global policy, and digital society.',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[600],
+              color: secondaryTextColor,
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -207,22 +214,27 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildStatItem(String value, String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final borderColor = isDark ? Colors.grey[700]! : Colors.grey[300]!;
+
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
+          border: Border.all(color: borderColor),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           children: [
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 4),
@@ -230,7 +242,7 @@ class _ProfilePageState extends State<ProfilePage> {
               label,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.grey[600],
+                color: secondaryTextColor,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0.5,
               ),
@@ -242,6 +254,9 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildSettingsSection(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -251,7 +266,7 @@ class _ProfilePageState extends State<ProfilePage> {
             'ACCOUNT SETTINGS',
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: secondaryTextColor,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),
@@ -260,7 +275,7 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(height: 12),
         _buildSettingsTile(
           icon: Icons.settings_outlined,
-          iconColor: Colors.grey[600]!,
+          iconColor: isDark ? Colors.grey[400]! : Colors.grey[600]!,
           title: 'Settings',
           subtitle: 'Theme and language',
           onTap: () {
@@ -290,6 +305,10 @@ class _ProfilePageState extends State<ProfilePage> {
     bool showBadge = false,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       leading: Container(
@@ -305,7 +324,7 @@ class _ProfilePageState extends State<ProfilePage> {
         title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: titleColor ?? Colors.black87,
+          color: titleColor ?? textColor,
         ),
       ),
       subtitle: subtitle != null
@@ -313,7 +332,7 @@ class _ProfilePageState extends State<ProfilePage> {
               subtitle,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: secondaryTextColor,
               ),
             )
           : null,
@@ -326,12 +345,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     width: 8,
                     height: 8,
                     margin: const EdgeInsets.only(right: 8),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF3B5BDB),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
                       shape: BoxShape.circle,
                     ),
                   ),
-                Icon(Icons.chevron_right, color: Colors.grey[400]),
+                Icon(Icons.chevron_right, color: isDark ? Colors.grey[600] : Colors.grey[400]),
               ],
             )
           : null,

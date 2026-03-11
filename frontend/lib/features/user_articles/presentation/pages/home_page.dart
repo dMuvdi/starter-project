@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.pushNamed(context, '/ArticleEditor');
               },
-              backgroundColor: const Color(0xFF3B5BDB),
+              backgroundColor: Theme.of(context).primaryColor,
               child: const Icon(Icons.add, color: Colors.white),
             )
           : null,
@@ -115,6 +115,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHeader() {
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
@@ -123,7 +126,7 @@ class _HomePageState extends State<HomePage> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFF3B5BDB),
+              color: primaryColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -133,12 +136,12 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(width: 12),
-          const Text(
+          Text(
             'Daily News',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: textColor,
             ),
           ),
           const Spacer(),
@@ -189,17 +192,17 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(Icons.trending_up,
-                            color: Color(0xFF3B5BDB), size: 20),
-                        SizedBox(width: 8),
+                            color: Theme.of(context).primaryColor, size: 20),
+                        const SizedBox(width: 8),
                         Text(
                           'Breaking News',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                           ),
                         ),
                       ],
@@ -212,8 +215,8 @@ class _HomePageState extends State<HomePage> {
                       },
                       child: Text(
                         _showAllNews ? 'Show Less' : 'See All',
-                        style: const TextStyle(
-                          color: Color(0xFF3B5BDB),
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -257,17 +260,17 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(Icons.people_outline,
-                            color: Color(0xFF3B5BDB), size: 20),
-                        SizedBox(width: 8),
+                            color: Theme.of(context).primaryColor, size: 20),
+                        const SizedBox(width: 8),
                         Text(
                           'Community Stories',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                           ),
                         ),
                       ],
@@ -276,10 +279,10 @@ class _HomePageState extends State<HomePage> {
                       onPressed: () {
                         Navigator.pushNamed(context, '/MyArticles');
                       },
-                      child: const Text(
+                      child: Text(
                         'View All',
                         style: TextStyle(
-                          color: Color(0xFF3B5BDB),
+                          color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -354,6 +357,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNewsCard(FeedItem item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? Theme.of(context).cardTheme.color : Colors.white;
+    final shadowColor = isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.08);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final primaryColor = Theme.of(context).primaryColor;
+
     return GestureDetector(
       onTap: () {
         if (item.newsArticle != null) {
@@ -369,10 +378,10 @@ class _HomePageState extends State<HomePage> {
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.white,
+          color: cardColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: shadowColor,
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -420,15 +429,15 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3B5BDB).withOpacity(0.1),
+                        color: primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         item.source.toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF3B5BDB),
+                          color: primaryColor,
                         ),
                       ),
                     ),
@@ -439,10 +448,10 @@ class _HomePageState extends State<HomePage> {
                         item.title,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: textColor,
                           height: 1.3,
                         ),
                       ),
@@ -503,13 +512,15 @@ class _HomePageState extends State<HomePage> {
         item.authorName,
         style: TextStyle(
           fontSize: 12,
-          color: Colors.grey[600],
+          color: Theme.of(context).textTheme.bodySmall?.color,
         ),
       ),
     );
   }
 
   Widget _buildEmptyState() {
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -517,14 +528,14 @@ class _HomePageState extends State<HomePage> {
           Icon(
             Icons.article_outlined,
             size: 80,
-            color: Colors.grey[300],
+            color: secondaryTextColor.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
           Text(
             'No articles yet',
             style: TextStyle(
               fontSize: 18,
-              color: Colors.grey[600],
+              color: secondaryTextColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -533,7 +544,7 @@ class _HomePageState extends State<HomePage> {
             'Be the first to publish an article!',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[500],
+              color: secondaryTextColor.withOpacity(0.7),
             ),
           ),
         ],
@@ -542,6 +553,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildErrorState(String? message) {
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -556,7 +569,7 @@ class _HomePageState extends State<HomePage> {
             message ?? 'Something went wrong',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey[600],
+              color: secondaryTextColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -590,12 +603,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBottomNav() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+    final shadowColor = isDark ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.05);
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: backgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: shadowColor,
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -619,6 +636,8 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isSelected = _selectedNavIndex == index;
+    final primaryColor = Theme.of(context).primaryColor;
+    final inactiveColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return GestureDetector(
       onTap: () {
@@ -639,7 +658,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Icon(
               isSelected ? _getFilledIcon(icon) : icon,
-              color: isSelected ? const Color(0xFF3B5BDB) : Colors.grey[600],
+              color: isSelected ? primaryColor : inactiveColor,
               size: 24,
             ),
             const SizedBox(height: 4),
@@ -648,7 +667,7 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? const Color(0xFF3B5BDB) : Colors.grey[600],
+                color: isSelected ? primaryColor : inactiveColor,
               ),
             ),
           ],

@@ -26,11 +26,12 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
+          icon: Icon(Icons.arrow_back,
+              color: isDark ? Colors.white : Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -74,9 +75,10 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context, state) {
         final isDark = state.isDarkMode;
         final primaryColor = Theme.of(context).primaryColor;
-        
+
         return ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
           leading: Container(
             width: 44,
             height: 44,
@@ -151,7 +153,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showLanguageBottomSheet() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -165,7 +167,8 @@ class _SettingsPageState extends State<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 child: Text(
                   'Select Language',
                   style: TextStyle(
@@ -188,14 +191,16 @@ class _SettingsPageState extends State<SettingsPage> {
     final isSelected = language == _selectedLanguage;
     final primaryColor = Theme.of(context).primaryColor;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24),
       title: Text(
         language,
         style: TextStyle(
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          color: isSelected ? primaryColor : (isDark ? Colors.white : Colors.black87),
+          color: isSelected
+              ? primaryColor
+              : (isDark ? Colors.white : Colors.black87),
         ),
       ),
       trailing: isSelected ? Icon(Icons.check, color: primaryColor) : null,

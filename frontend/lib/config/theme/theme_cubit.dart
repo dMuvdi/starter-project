@@ -6,14 +6,14 @@ import 'theme_state.dart';
 
 class ThemeCubit extends Cubit<ThemeState> {
   static const String _themeKey = 'theme_mode';
-  
+
   ThemeCubit() : super(ThemeState.initial());
 
   /// Initialize theme from saved preferences
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     final savedTheme = prefs.getString(_themeKey);
-    
+
     if (savedTheme != null) {
       final themeMode = AppThemeMode.values.firstWhere(
         (e) => e.name == savedTheme,
@@ -35,7 +35,7 @@ class ThemeCubit extends Cubit<ThemeState> {
   /// Set specific theme mode
   Future<void> setTheme(AppThemeMode mode) async {
     _applyTheme(mode);
-    
+
     // Save preference
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_themeKey, mode.name);
@@ -43,7 +43,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
   void _applyTheme(AppThemeMode mode) {
     ThemeMode materialMode;
-    
+
     switch (mode) {
       case AppThemeMode.light:
         materialMode = ThemeMode.light;
@@ -53,8 +53,10 @@ class ThemeCubit extends Cubit<ThemeState> {
         break;
       case AppThemeMode.system:
         // Get system brightness
-        final brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
-        materialMode = brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
+        final brightness =
+            SchedulerBinding.instance.platformDispatcher.platformBrightness;
+        materialMode =
+            brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
         break;
     }
 

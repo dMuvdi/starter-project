@@ -166,7 +166,8 @@ class _ArticleDetailContent extends StatelessWidget {
   }
 
   Widget _buildArticleHeader(BuildContext context) {
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
@@ -183,8 +184,10 @@ class _ArticleDetailContent extends StatelessWidget {
   }
 
   Widget _buildAuthorSection(BuildContext context) {
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
     final primaryColor = Theme.of(context).primaryColor;
 
     final readTime = _calculateReadTime(article.content);
@@ -258,7 +261,8 @@ class _ArticleDetailContent extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
     final primaryColor = Theme.of(context).primaryColor;
 
     if (article.content == null || article.content!.isEmpty) {
@@ -407,10 +411,13 @@ class _ArticleDetailContent extends StatelessWidget {
 
   Widget _buildTtsPlayer(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
-    final shadowColor = isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.1);
+    final backgroundColor =
+        isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+    final shadowColor =
+        isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.1);
     final primaryColor = Theme.of(context).primaryColor;
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
     final progressBgColor = isDark ? Colors.grey[700] : Colors.grey[200];
 
     return Positioned(

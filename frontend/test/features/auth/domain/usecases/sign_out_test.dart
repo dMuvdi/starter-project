@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/sign_out.dart';
 
-import '../../../../mocks/mocks.mocks.dart';
+import '../../../../mocks/mocks.dart';
 
 void main() {
   late SignOutUseCase useCase;

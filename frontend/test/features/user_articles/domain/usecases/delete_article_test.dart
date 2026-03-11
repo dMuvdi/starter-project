@@ -3,7 +3,7 @@ import 'package:mockito/mockito.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/features/user_articles/domain/usecases/delete_article.dart';
 
-import '../../../../mocks/mocks.mocks.dart';
+import '../../../../mocks/mocks.dart';
 
 void main() {
   late DeleteArticleUseCase useCase;

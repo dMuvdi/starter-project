@@ -7,7 +7,7 @@ import 'package:news_app_clean_architecture/features/user_articles/data/models/u
 import 'package:news_app_clean_architecture/features/user_articles/data/repository/user_article_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/user_articles/domain/entities/user_article.dart';
 
-import '../../../../mocks/mocks.mocks.dart';
+import '../../../../mocks/mocks.dart';
 
 void main() {
   late UserArticleRepositoryImpl repository;

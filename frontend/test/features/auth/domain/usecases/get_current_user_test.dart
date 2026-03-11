@@ -4,7 +4,7 @@ import 'package:news_app_clean_architecture/features/auth/domain/entities/user.d
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/get_current_user.dart';
 
 import '../../../../fixtures/test_fixtures.dart';
-import '../../../../mocks/mocks.mocks.dart';
+import '../../../../mocks/mocks.dart';
 
 void main() {
   late GetCurrentUserUseCase useCase;

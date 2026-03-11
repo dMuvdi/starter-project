@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/features/user_articles/domain/usecases/upload_image.dart';
 
-import '../../../../mocks/mocks.mocks.dart';
+import '../../../../mocks/mocks.dart';
 
 void main() {
   late UploadImageUseCase useCase;

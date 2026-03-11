@@ -84,9 +84,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (dataState.data != null) {
       emit(Authenticated(dataState.data!));
     } else {
-      final failure = _mapErrorToFailure(dataState.error?.toString());
+      final errorString =
+          dataState.exception?.toString() ?? dataState.error?.toString();
+      final failure = _mapErrorToFailure(errorString);
       emit(AuthError(
-        message: dataState.error?.toString() ?? 'Sign in failed',
+        message: errorString ?? 'Sign in failed',
         failure: failure,
       ));
     }
@@ -109,9 +111,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (dataState.data != null) {
       emit(Authenticated(dataState.data!));
     } else {
-      final failure = _mapErrorToFailure(dataState.error?.toString());
+      final errorString =
+          dataState.exception?.toString() ?? dataState.error?.toString();
+      final failure = _mapErrorToFailure(errorString);
       emit(AuthError(
-        message: dataState.error?.toString() ?? 'Sign up failed',
+        message: errorString ?? 'Sign up failed',
         failure: failure,
       ));
     }

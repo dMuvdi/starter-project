@@ -19,5 +19,3 @@ class DataFailed<T> extends DataState<T> {
           exception: error is Exception ? error : null,
         );
 }
-
-

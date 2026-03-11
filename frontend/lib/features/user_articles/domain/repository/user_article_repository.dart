@@ -32,7 +32,8 @@ abstract class UserArticleRepository {
 
   /// Gets articles filtered by category.
   /// Returns [DataState<List<UserArticleEntity>>] with the filtered articles.
-  Future<DataState<List<UserArticleEntity>>> getArticlesByCategory(String category);
+  Future<DataState<List<UserArticleEntity>>> getArticlesByCategory(
+      String category);
 
   /// Publishes a draft article (sets isDraft to false).
   /// Returns [DataState<UserArticleEntity>] with the published article on success.

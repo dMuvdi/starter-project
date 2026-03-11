@@ -28,6 +28,17 @@ class EnvConfig {
   static bool get isProduction => environment == 'production';
 
   // ============================================
+  // NEWS API CONFIGURATION
+  // ============================================
+
+  /// NewsAPI.org API key for fetching news articles.
+  /// Get this from https://newsapi.org/register
+  static const String newsApiKey = String.fromEnvironment(
+    'NEWS_API_KEY',
+    defaultValue: '',
+  );
+
+  // ============================================
   // CLOUDINARY CONFIGURATION
   // ============================================
 
@@ -42,7 +53,7 @@ class EnvConfig {
   /// Create this in Cloudinary Settings → Upload → Upload Presets.
   static const String cloudinaryUploadPreset = String.fromEnvironment(
     'CLOUDINARY_UPLOAD_PRESET',
-    defaultValue: 'symmetry_news_unsigned',
+    defaultValue: 'xg3gxg9w',
   );
 
   // ============================================
@@ -92,6 +103,10 @@ class EnvConfig {
   static void validate() {
     final missingVars = <String>[];
 
+    if (newsApiKey.isEmpty) {
+      missingVars.add('NEWS_API_KEY');
+    }
+
     if (cloudinaryCloudName.isEmpty) {
       missingVars.add('CLOUDINARY_CLOUD_NAME');
     }
@@ -114,6 +129,9 @@ class EnvConfig {
 
     return {
       'ENV': environment,
+      'NEWS_API_KEY': newsApiKey.isNotEmpty
+          ? '${newsApiKey.substring(0, 3)}***'
+          : 'NOT SET',
       'CLOUDINARY_CLOUD_NAME': cloudinaryCloudName.isNotEmpty
           ? '${cloudinaryCloudName.substring(0, 3)}***'
           : 'NOT SET',

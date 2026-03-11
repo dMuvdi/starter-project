@@ -85,8 +85,11 @@ class _MyArticlesPageState extends State<MyArticlesPage>
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/ArticleEditor');
+        onPressed: () async {
+          final result = await Navigator.pushNamed(context, '/ArticleEditor');
+          if (result == true && mounted) {
+            context.read<UserArticlesBloc>().add(const RefreshUserArticles());
+          }
         },
         backgroundColor: const Color(0xFF3B5BDB),
         child: const Icon(Icons.add, color: Colors.white),
@@ -147,9 +150,13 @@ class _MyArticlesPageState extends State<MyArticlesPage>
           return _ArticleListItem(
             article: articles[index],
             onTap: () => _onArticleTap(articles[index]),
+            onEdit: () => _onEditArticle(articles[index]),
             onDelete: () => _onDeleteArticle(articles[index]),
             onPublish: articles[index].isDraft
                 ? () => _onPublishArticle(articles[index])
+                : null,
+            onUnpublish: !articles[index].isDraft
+                ? () => _onUnpublishArticle(articles[index])
                 : null,
           );
         },
@@ -186,8 +193,14 @@ class _MyArticlesPageState extends State<MyArticlesPage>
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pushNamed(context, '/ArticleEditor');
+            onPressed: () async {
+              final result =
+                  await Navigator.pushNamed(context, '/ArticleEditor');
+              if (result == true && mounted) {
+                context
+                    .read<UserArticlesBloc>()
+                    .add(const RefreshUserArticles());
+              }
             },
             icon: const Icon(Icons.add),
             label: const Text('Create Article'),
@@ -237,11 +250,27 @@ class _MyArticlesPageState extends State<MyArticlesPage>
     );
   }
 
-  void _onArticleTap(UserArticleEntity article) {
+  void _onArticleTap(UserArticleEntity article) async {
     if (article.isDraft) {
-      Navigator.pushNamed(context, '/ArticleEditor', arguments: article);
+      final result = await Navigator.pushNamed(context, '/ArticleEditor',
+          arguments: article);
+      if (result == true && mounted) {
+        context.read<UserArticlesBloc>().add(const RefreshUserArticles());
+      }
     } else {
-      Navigator.pushNamed(context, '/UserArticleDetail', arguments: article);
+      final result = await Navigator.pushNamed(context, '/UserArticleDetail',
+          arguments: article);
+      if (result == true && mounted) {
+        context.read<UserArticlesBloc>().add(const RefreshUserArticles());
+      }
+    }
+  }
+
+  void _onEditArticle(UserArticleEntity article) async {
+    final result = await Navigator.pushNamed(context, '/ArticleEditor',
+        arguments: article);
+    if (result == true && mounted) {
+      context.read<UserArticlesBloc>().add(const RefreshUserArticles());
     }
   }
 
@@ -276,19 +305,49 @@ class _MyArticlesPageState extends State<MyArticlesPage>
           PublishArticle(articleId: article.id!),
         );
   }
+
+  void _onUnpublishArticle(UserArticleEntity article) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Unpublish Article'),
+        content: const Text(
+            'This will convert your article back to a draft. It will no longer be visible to others.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              context.read<UserArticlesBloc>().add(
+                    UnpublishArticle(articleId: article.id!),
+                  );
+            },
+            child: const Text('Unpublish'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ArticleListItem extends StatelessWidget {
   final UserArticleEntity article;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback? onPublish;
+  final VoidCallback? onUnpublish;
 
   const _ArticleListItem({
     required this.article,
     required this.onTap,
+    required this.onEdit,
     required this.onDelete,
     this.onPublish,
+    this.onUnpublish,
   });
 
   @override
@@ -303,10 +362,77 @@ class _ArticleListItem extends StatelessWidget {
             _buildImage(),
             const SizedBox(width: 12),
             Expanded(child: _buildContent()),
-            _buildStatusBadge(),
+            _buildPopupMenu(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPopupMenu() {
+    return PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert, color: Colors.grey[600]),
+      onSelected: (value) {
+        switch (value) {
+          case 'edit':
+            onEdit();
+            break;
+          case 'delete':
+            onDelete();
+            break;
+          case 'publish':
+            onPublish?.call();
+            break;
+          case 'unpublish':
+            onUnpublish?.call();
+            break;
+        }
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'edit',
+          child: Row(
+            children: [
+              Icon(Icons.edit_outlined, size: 20),
+              SizedBox(width: 12),
+              Text('Edit'),
+            ],
+          ),
+        ),
+        if (onPublish != null)
+          const PopupMenuItem(
+            value: 'publish',
+            child: Row(
+              children: [
+                Icon(Icons.publish_outlined, size: 20),
+                SizedBox(width: 12),
+                Text('Publish'),
+              ],
+            ),
+          ),
+        if (onUnpublish != null)
+          const PopupMenuItem(
+            value: 'unpublish',
+            child: Row(
+              children: [
+                Icon(Icons.unpublished_outlined, size: 20),
+                SizedBox(width: 12),
+                Text('Unpublish'),
+              ],
+            ),
+          ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(Icons.delete_outline, size: 20, color: Colors.red),
+              SizedBox(width: 12),
+              Text('Delete', style: TextStyle(color: Colors.red)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -366,28 +492,27 @@ class _ArticleListItem extends StatelessWidget {
             color: Colors.grey[600],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildStatusBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: article.isDraft
-            ? Colors.grey[200]
-            : const Color(0xFF3B5BDB).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        article.isDraft ? 'DRAFT' : 'READ',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: article.isDraft ? Colors.grey[700] : const Color(0xFF3B5BDB),
-          letterSpacing: 0.5,
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: article.isDraft
+                ? Colors.grey[200]
+                : const Color(0xFF3B5BDB).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            article.isDraft ? 'DRAFT' : 'PUBLISHED',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color:
+                  article.isDraft ? Colors.grey[700] : const Color(0xFF3B5BDB),
+              letterSpacing: 0.5,
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 

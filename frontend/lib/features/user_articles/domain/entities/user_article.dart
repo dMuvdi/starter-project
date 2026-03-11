@@ -10,6 +10,7 @@ class UserArticleEntity extends Equatable {
   final String? description;
   final String? content;
   final String? thumbnailUrl;
+  final String? sourceUrl;
   final List<String>? categories;
   final bool isDraft;
   final DateTime? publishedAt;
@@ -24,6 +25,7 @@ class UserArticleEntity extends Equatable {
     this.description,
     this.content,
     this.thumbnailUrl,
+    this.sourceUrl,
     this.categories,
     this.isDraft = true,
     this.publishedAt,
@@ -40,6 +42,7 @@ class UserArticleEntity extends Equatable {
     String? description,
     String? content,
     String? thumbnailUrl,
+    String? sourceUrl,
     List<String>? categories,
     bool? isDraft,
     DateTime? publishedAt,
@@ -54,6 +57,7 @@ class UserArticleEntity extends Equatable {
       description: description ?? this.description,
       content: content ?? this.content,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      sourceUrl: sourceUrl ?? this.sourceUrl,
       categories: categories ?? this.categories,
       isDraft: isDraft ?? this.isDraft,
       publishedAt: publishedAt ?? this.publishedAt,
@@ -71,6 +75,7 @@ class UserArticleEntity extends Equatable {
         description,
         content,
         thumbnailUrl,
+        sourceUrl,
         categories,
         isDraft,
         publishedAt,

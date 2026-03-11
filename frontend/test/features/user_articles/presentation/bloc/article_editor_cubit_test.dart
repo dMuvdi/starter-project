@@ -410,7 +410,7 @@ void main() {
     });
 
     group('ArticleEditorState', () {
-      test('isValidForPublish requires title, content and image', () {
+      test('isValidForPublish requires title and content (image optional)', () {
         const state = ArticleEditorState(
           title: 'Title',
           content: 'Content',
@@ -418,11 +418,24 @@ void main() {
         );
         expect(state.isValidForPublish, true);
 
+        // Image is optional - should still be valid without image
         const stateNoImage = ArticleEditorState(
           title: 'Title',
           content: 'Content',
         );
-        expect(stateNoImage.isValidForPublish, false);
+        expect(stateNoImage.isValidForPublish, true);
+
+        // Missing title should be invalid
+        const stateNoTitle = ArticleEditorState(
+          content: 'Content',
+        );
+        expect(stateNoTitle.isValidForPublish, false);
+
+        // Missing content should be invalid
+        const stateNoContent = ArticleEditorState(
+          title: 'Title',
+        );
+        expect(stateNoContent.isValidForPublish, false);
       });
 
       test('isValidForDraft only requires title', () {

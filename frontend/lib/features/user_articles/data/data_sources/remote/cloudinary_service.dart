@@ -40,12 +40,26 @@ class CloudinaryServiceImpl implements CloudinaryService {
   @override
   Future<String> uploadImage(File imageFile, {String? folder}) async {
     try {
+      // Debug logging
+      print('[Cloudinary] Starting upload...');
+      print('[Cloudinary] Cloud name: $_cloudName');
+      print('[Cloudinary] Upload preset: $_uploadPreset');
+      print('[Cloudinary] File path: ${imageFile.path}');
+      print('[Cloudinary] URL: $_uploadUrl');
+
       // Validate configuration
       if (_cloudName.isEmpty) {
         throw Exception(
           'Cloudinary cloud name not configured. '
           'Set CLOUDINARY_CLOUD_NAME environment variable. '
           'See docs/ENV_CONFIG.md for setup instructions.',
+        );
+      }
+
+      if (_uploadPreset.isEmpty) {
+        throw Exception(
+          'Cloudinary upload preset not configured. '
+          'Set CLOUDINARY_UPLOAD_PRESET environment variable.',
         );
       }
 
@@ -62,6 +76,8 @@ class CloudinaryServiceImpl implements CloudinaryService {
         if (folder != null) 'folder': folder,
       });
 
+      print('[Cloudinary] Sending request...');
+
       // Make the upload request
       final response = await _dio.post(
         _uploadUrl,
@@ -73,6 +89,8 @@ class CloudinaryServiceImpl implements CloudinaryService {
         ),
       );
 
+      print('[Cloudinary] Response status: ${response.statusCode}');
+
       // Extract the secure URL from the response
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
@@ -82,14 +100,24 @@ class CloudinaryServiceImpl implements CloudinaryService {
           throw Exception('No secure_url in Cloudinary response');
         }
 
+        print('[Cloudinary] Upload successful! URL: $secureUrl');
         return secureUrl;
       } else {
+        final errorBody = response.data;
+        print('[Cloudinary] Upload failed: $errorBody');
         throw Exception(
-          'Cloudinary upload failed with status: ${response.statusCode}',
+          'Cloudinary upload failed with status: ${response.statusCode}, '
+          'body: $errorBody',
         );
       }
     } on DioError catch (e) {
-      throw Exception('Image upload failed: ${e.message}');
+      // Log the full error for debugging
+      final responseData = e.response?.data;
+      throw Exception(
+        'Image upload failed: ${e.message}, '
+        'status: ${e.response?.statusCode}, '
+        'response: $responseData',
+      );
     } catch (e) {
       throw Exception('Image upload failed: ${e.toString()}');
     }

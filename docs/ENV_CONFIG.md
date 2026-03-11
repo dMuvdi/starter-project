@@ -33,7 +33,22 @@ We use Cloudinary instead of Firebase Storage to reduce costs (free tier availab
 
 ---
 
-### 2. Firebase
+### 2. News API (News Data)
+
+We use NewsAPI.org to fetch news articles.
+
+**Setup Steps:**
+1. Create a free account at [newsapi.org](https://newsapi.org/register)
+2. Get your **API Key** from the account page
+
+**Required Variables:**
+| Variable | Description |
+|----------|-------------|
+| `NEWS_API_KEY` | Your API key from NewsAPI.org |
+
+---
+
+### 3. Firebase
 
 Firebase handles authentication (Firebase Auth) and database (Firestore).
 
@@ -70,6 +85,7 @@ Firebase handles authentication (Firebase Auth) and database (Firestore).
 cd frontend
 
 flutter run \
+  --dart-define=NEWS_API_KEY=your_news_api_key \
   --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
   --dart-define=CLOUDINARY_UPLOAD_PRESET=symmetry_news_unsigned \
   --dart-define=ENV=development
@@ -79,6 +95,7 @@ flutter run \
 
 ```bash
 flutter run --release \
+  --dart-define=NEWS_API_KEY=your_news_api_key \
   --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
   --dart-define=CLOUDINARY_UPLOAD_PRESET=symmetry_news_unsigned \
   --dart-define=ENV=production
@@ -93,6 +110,7 @@ Create a `run_dev.sh` script for convenience:
 # run_dev.sh - Run app in development mode
 
 flutter run \
+  --dart-define=NEWS_API_KEY=your_news_api_key \
   --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
   --dart-define=CLOUDINARY_UPLOAD_PRESET=symmetry_news_unsigned \
   --dart-define=ENV=development
@@ -112,8 +130,9 @@ chmod +x run_dev.sh
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
+| `NEWS_API_KEY` | **Yes** | - | NewsAPI.org API key |
 | `CLOUDINARY_CLOUD_NAME` | **Yes** | - | Cloudinary cloud name |
-| `CLOUDINARY_UPLOAD_PRESET` | No | `symmetry_news_unsigned` | Upload preset for images |
+| `CLOUDINARY_UPLOAD_PRESET` | No | `xg3gxg9w` | Upload preset for images |
 | `ENV` | No | `development` | Environment: `development` or `production` |
 
 ### Optional Firebase Overrides
@@ -149,18 +168,23 @@ To run this project:
 3. **Set up Cloudinary**
    - Create account at [cloudinary.com](https://cloudinary.com)
    - Note your Cloud Name
-   - Create upload preset named `symmetry_news_unsigned`
+   - Create unsigned upload preset
 
-4. **Deploy backend rules**
+4. **Set up News API**
+   - Create account at [newsapi.org](https://newsapi.org/register)
+   - Note your API Key
+
+5. **Deploy backend rules**
    ```bash
    cd backend
    firebase deploy --only firestore
    ```
 
-5. **Run the app**
+6. **Run the app**
    ```bash
    cd frontend
    flutter run \
+     --dart-define=NEWS_API_KEY=your_news_api_key \
      --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
      --dart-define=ENV=development
    ```
@@ -173,7 +197,9 @@ To run this project:
 
 Make sure you're passing the `--dart-define` flags when running:
 ```bash
-flutter run --dart-define=CLOUDINARY_CLOUD_NAME=your_name
+flutter run \
+  --dart-define=NEWS_API_KEY=your_key \
+  --dart-define=CLOUDINARY_CLOUD_NAME=your_name
 ```
 
 ### Firebase not configured

@@ -74,7 +74,7 @@ void main() {
     });
 
     test('props should return all properties for Equatable', () {
-      expect(testArticle.props.length, 12);
+      expect(testArticle.props.length, 13);
       expect(testArticle.props, contains('article-id'));
       expect(testArticle.props, contains('Test Title'));
       expect(testArticle.props, contains(false)); // isDraft

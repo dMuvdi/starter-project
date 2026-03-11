@@ -47,11 +47,8 @@ class ArticleEditorState extends Equatable {
   /// Check if the form has any content
   bool get hasContent => title.isNotEmpty || content.isNotEmpty;
 
-  /// Check if the form is valid for publishing
-  bool get isValidForPublish =>
-      title.isNotEmpty &&
-      content.isNotEmpty &&
-      (coverImageUrl != null || localImagePath != null);
+  /// Check if the form is valid for publishing (image is optional)
+  bool get isValidForPublish => title.isNotEmpty && content.isNotEmpty;
 
   /// Check if the form is valid for saving as draft
   bool get isValidForDraft => title.isNotEmpty;

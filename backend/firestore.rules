@@ -22,31 +22,41 @@ service cloud.firestore {
       return field is string && field.size() > 0 && field.size() <= maxLength;
     }
     
+    // Validate optional string field (can be empty)
+    function isValidOptionalString(field, maxLength) {
+      return field == null || (field is string && field.size() <= maxLength);
+    }
+    
     // Validate article data on create
     function isValidArticleCreate() {
       let data = request.resource.data;
-      return data.keys().hasAll(['title', 'content', 'authorId', 'authorName', 'isDraft', 'categories', 'createdAt', 'updatedAt'])
+      return data.keys().hasAll(['title', 'authorId', 'authorName', 'isDraft', 'createdAt', 'updatedAt'])
         && isValidString(data.title, 200)
-        && isValidString(data.content, 50000)
         && data.authorId == request.auth.uid
-        && isValidString(data.authorName, 100)
+        && data.authorId is string
+        && data.authorName is string
         && data.isDraft is bool
-        && data.categories is list
-        && data.categories.size() <= 5
         && data.createdAt is timestamp
-        && data.updatedAt is timestamp;
+        && data.updatedAt is timestamp
+        // content is required for publishing, optional for drafts
+        && (data.isDraft == true || (data.content is string && data.content.size() > 0))
+        // categories must be a list if present
+        && (!('categories' in data.keys()) || (data.categories is list && data.categories.size() <= 5));
     }
     
     // Validate article data on update
     function isValidArticleUpdate() {
       let data = request.resource.data;
-      return isValidString(data.title, 200)
-        && isValidString(data.content, 50000)
+      return data.title is string
+        && data.title.size() > 0
+        && data.title.size() <= 200
         && data.authorId == resource.data.authorId  // Cannot change author
         && data.isDraft is bool
-        && data.categories is list
-        && data.categories.size() <= 5
-        && data.updatedAt is timestamp;
+        && data.updatedAt is timestamp
+        // content is required for publishing, optional for drafts
+        && (data.isDraft == true || (data.content is string && data.content.size() > 0))
+        // categories must be a list if present
+        && (!('categories' in data.keys()) || (data.categories is list && data.categories.size() <= 5));
     }
     
     // Validate user profile data

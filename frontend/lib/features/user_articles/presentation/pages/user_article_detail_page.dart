@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/user_article.dart';
 import '../bloc/article_detail/tts_cubit.dart';
 import '../bloc/article_detail/tts_state.dart';
+import '../bloc/user_articles/user_articles_bloc.dart';
+import '../bloc/user_articles/user_articles_event.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart' as auth;
 
 class UserArticleDetailPage extends StatelessWidget {
   final UserArticleEntity article;
@@ -69,32 +74,29 @@ class _ArticleDetailContent extends StatelessWidget {
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
-        IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.bookmark_border,
-                color: Colors.white, size: 20),
-          ),
-          onPressed: () {
-            // TODO: Save article
-          },
-        ),
-        IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              shape: BoxShape.circle,
-            ),
-            child:
-                const Icon(Icons.share_outlined, color: Colors.white, size: 20),
-          ),
-          onPressed: () {
-            // TODO: Share article
+        // Show link button only for external articles (not from current user)
+        // Show more options only for author's own articles
+        BlocBuilder<AuthBloc, auth.AuthState>(
+          builder: (context, authState) {
+            final isAuthor = authState is auth.Authenticated &&
+                authState.user?.id == article.authorId;
+
+            if (isAuthor) {
+              return _buildMoreOptionsButton(context);
+            } else {
+              // External article - show link button
+              return IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.link, color: Colors.white, size: 20),
+                ),
+                onPressed: () => _openSourceUrl(context),
+              );
+            }
           },
         ),
       ],
@@ -182,6 +184,10 @@ class _ArticleDetailContent extends StatelessWidget {
     final readTime = _calculateReadTime(article.content);
     final publishedDate =
         _formatDate(article.publishedAt ?? article.createdAt ?? DateTime.now());
+    final authorName = article.authorName;
+    final authorInitial = (authorName != null && authorName.isNotEmpty)
+        ? authorName.substring(0, 1).toUpperCase()
+        : 'A';
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -191,7 +197,7 @@ class _ArticleDetailContent extends StatelessWidget {
             radius: 24,
             backgroundColor: const Color(0xFFF5C9A0),
             child: Text(
-              article.authorName?.substring(0, 1).toUpperCase() ?? 'A',
+              authorInitial,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -508,6 +514,162 @@ class _ArticleDetailContent extends StatelessWidget {
       'Nov',
       'Dec'
     ];
-    return '${months[dateTime.month - 1]} ${dateTime.day}';
+    final currentYear = DateTime.now().year;
+    final formattedDate = '${months[dateTime.month - 1]} ${dateTime.day}';
+
+    if (dateTime.year != currentYear) {
+      return '$formattedDate, ${dateTime.year}';
+    }
+    return formattedDate;
+  }
+
+  Future<void> _openSourceUrl(BuildContext context) async {
+    final sourceUrl = article.sourceUrl;
+    if (sourceUrl == null || sourceUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No source URL available for this article'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final uri = Uri.parse(sourceUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open the URL'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildMoreOptionsButton(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.3),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.more_vert, color: Colors.white, size: 20),
+      ),
+      onSelected: (value) async {
+        switch (value) {
+          case 'edit':
+            final result = await Navigator.pushNamed(
+              context,
+              '/ArticleEditor',
+              arguments: article,
+            );
+            // If changes were made in editor, go back to refresh the list
+            if (result == true && context.mounted) {
+              Navigator.pop(context, true);
+            }
+            break;
+          case 'unpublish':
+            _showUnpublishDialog(context);
+            break;
+          case 'delete':
+            _showDeleteDialog(context);
+            break;
+        }
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'edit',
+          child: Row(
+            children: [
+              Icon(Icons.edit_outlined, size: 20),
+              SizedBox(width: 12),
+              Text('Edit'),
+            ],
+          ),
+        ),
+        if (!article.isDraft)
+          const PopupMenuItem(
+            value: 'unpublish',
+            child: Row(
+              children: [
+                Icon(Icons.unpublished_outlined, size: 20),
+                SizedBox(width: 12),
+                Text('Unpublish'),
+              ],
+            ),
+          ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(Icons.delete_outline, size: 20, color: Colors.red),
+              SizedBox(width: 12),
+              Text('Delete', style: TextStyle(color: Colors.red)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showUnpublishDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Unpublish Article'),
+        content: const Text(
+            'This will convert your article back to a draft. It will no longer be visible to others.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              context.read<UserArticlesBloc>().add(
+                    UnpublishArticle(articleId: article.id!),
+                  );
+              Navigator.pop(context, true); // Go back and refresh
+            },
+            child: const Text('Unpublish'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Article'),
+        content: const Text(
+            'Are you sure you want to delete this article? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              context.read<UserArticlesBloc>().add(
+                    DeleteArticle(articleId: article.id!),
+                  );
+              Navigator.pop(context, true); // Go back and refresh
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
   }
 }

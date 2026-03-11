@@ -524,9 +524,11 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
   void _saveDraft(BuildContext context) {
     final authState = context.read<AuthBloc>().state;
     if (authState is auth.Authenticated) {
+      final user = authState.user!;
+      final authorName = _getAuthorName(user);
       context.read<ArticleEditorCubit>().saveDraft(
-            authorId: authState.user!.id ?? '',
-            authorName: authState.user!.displayName ?? 'Anonymous',
+            authorId: user.id ?? '',
+            authorName: authorName,
           );
     }
   }
@@ -534,14 +536,32 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
   void _publish(BuildContext context) {
     final authState = context.read<AuthBloc>().state;
     if (authState is auth.Authenticated) {
+      final user = authState.user!;
+      final authorName = _getAuthorName(user);
       context.read<ArticleEditorCubit>().publishArticle(
-            authorId: authState.user!.id ?? '',
-            authorName: authState.user!.displayName ?? 'Anonymous',
+            authorId: user.id ?? '',
+            authorName: authorName,
           );
     }
   }
 
+  String _getAuthorName(dynamic user) {
+    // Try displayName first
+    if (user.displayName != null && user.displayName!.isNotEmpty) {
+      return user.displayName!;
+    }
+    // Fall back to email username
+    if (user.email != null && user.email!.isNotEmpty) {
+      return user.email!.split('@').first;
+    }
+    // Last resort
+    return 'Anonymous';
+  }
+
   void _onClose(BuildContext context, ArticleEditorState state) {
+    // Return true if any changes were saved to trigger refresh
+    final shouldRefresh = state.lastSaved != null || state.isEditing;
+
     if (state.hasUnsavedChanges) {
       showDialog(
         context: context,
@@ -552,14 +572,19 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
-                Navigator.pop(context);
+                Navigator.pop(context, shouldRefresh);
               },
               child: const Text('Discard'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(dialogContext);
                 _saveDraft(context);
+                // Wait a moment for save to complete, then close with refresh
+                await Future.delayed(const Duration(milliseconds: 500));
+                if (context.mounted) {
+                  Navigator.pop(context, true);
+                }
               },
               child: const Text('Save Draft'),
             ),
@@ -567,7 +592,7 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
         ),
       );
     } else {
-      Navigator.pop(context);
+      Navigator.pop(context, shouldRefresh);
     }
   }
 }

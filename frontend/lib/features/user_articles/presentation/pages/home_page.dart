@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../domain/entities/user_article.dart';
+import '../../../../core/domain/entities/feed_item.dart';
 import '../bloc/user_articles/user_articles_bloc.dart';
 import '../bloc/user_articles/user_articles_event.dart';
 import '../bloc/user_articles/user_articles_state.dart';
@@ -10,6 +10,8 @@ import '../widgets/article_list_card.dart';
 import '../widgets/category_widgets.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart' as auth;
+import '../../../daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
+import '../../../daily_news/presentation/bloc/article/remote/remote_article_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -91,25 +93,50 @@ class _HomePageState extends State<HomePage> {
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: BlocBuilder<UserArticlesBloc, UserArticlesState>(
-            builder: (context, state) {
-              if (state is UserArticlesLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+          child: BlocBuilder<RemoteArticlesBloc, RemoteArticlesState>(
+            builder: (context, remoteState) {
+              return BlocBuilder<UserArticlesBloc, UserArticlesState>(
+                builder: (context, userState) {
+                  // Check loading states
+                  final isLoading = userState is UserArticlesLoading ||
+                      remoteState is RemoteArticlesLoading;
 
-              if (state is UserArticlesLoaded) {
-                final articles = state.articles ?? [];
-                if (articles.isEmpty) {
-                  return _buildEmptyState();
-                }
-                return _buildArticlesList(articles);
-              }
+                  if (isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-              if (state is UserArticlesError) {
-                return _buildErrorState(state.errorMessage);
-              }
+                  // Gather articles from both sources
+                  final List<FeedItem> feedItems = [];
 
-              return _buildEmptyState();
+                  // Add NewsAPI articles (labeled as "Trending")
+                  if (remoteState is RemoteArticlesDone &&
+                      remoteState.articles != null) {
+                    for (final article in remoteState.articles!) {
+                      feedItems.add(FeedItem.fromNewsArticle(article));
+                    }
+                  }
+
+                  // Add user articles
+                  if (userState is UserArticlesLoaded &&
+                      userState.articles != null) {
+                    for (final article in userState.articles!) {
+                      feedItems.add(FeedItem.fromUserArticle(article));
+                    }
+                  }
+
+                  // Handle errors
+                  if (userState is UserArticlesError &&
+                      remoteState is RemoteArticlesError) {
+                    return _buildErrorState('Failed to load articles');
+                  }
+
+                  if (feedItems.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  return _buildBlendedFeed(feedItems);
+                },
+              );
             },
           ),
         ),
@@ -211,92 +238,309 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildArticlesList(List<UserArticleEntity> articles) {
+  Widget _buildBlendedFeed(List<FeedItem> feedItems) {
+    // Separate news and user articles
+    final newsItems = feedItems.where((f) => f.isFromNewsApi).toList();
+    final userItems = feedItems.where((f) => f.isUserArticle).toList();
+
     return RefreshIndicator(
       onRefresh: () async {
         context.read<UserArticlesBloc>().add(const LoadPublishedArticles());
       },
       child: CustomScrollView(
         slivers: [
-          // Featured article (first article)
-          if (articles.isNotEmpty)
-            SliverToBoxAdapter(
-              child: FeaturedArticleCard(
-                article: articles.first,
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/UserArticleDetail',
-                    arguments: articles.first,
-                  );
-                },
-              ),
-            ),
-          // Top Stories header
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Top Stories',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // TODO: View all
-                    },
-                    child: const Text(
-                      'View All',
+          // Trending News Section (from NewsAPI)
+          if (newsItems.isNotEmpty) ...[
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.trending_up, color: Color(0xFF3B5BDB), size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Breaking News',
                       style: TextStyle(
-                        color: Color(0xFF3B5BDB),
-                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          // Article list
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                // Skip the first article (featured)
-                final articleIndex = index + 1;
-                if (articleIndex >= articles.length) {
-                  return null;
-                }
-                return Column(
-                  children: [
-                    ArticleListCard(
-                      article: articles[articleIndex],
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/UserArticleDetail',
-                          arguments: articles[articleIndex],
-                        );
-                      },
-                    ),
-                    if (articleIndex < articles.length - 1)
-                      const Divider(height: 1, indent: 16, endIndent: 16),
-                  ],
-                );
-              },
-              childCount: articles.length > 1 ? articles.length - 1 : 0,
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 260,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: newsItems.length > 10 ? 10 : newsItems.length,
+                  itemBuilder: (context, index) {
+                    final item = newsItems[index];
+                    return _buildNewsCard(item);
+                  },
+                ),
+              ),
             ),
-          ),
+          ],
+          // Community Articles Header
+          if (userItems.isNotEmpty) ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.people_outline,
+                            color: Color(0xFF3B5BDB), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Community Stories',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/MyArticles');
+                      },
+                      child: const Text(
+                        'View All',
+                        style: TextStyle(
+                          color: Color(0xFF3B5BDB),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Featured community article
+            if (userItems.isNotEmpty)
+              SliverToBoxAdapter(
+                child: FeaturedArticleCard(
+                  article: userItems.first.userArticle!,
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/UserArticleDetail',
+                      arguments: userItems.first.userArticle,
+                    );
+                  },
+                ),
+              ),
+            // Community article list
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final articleIndex = index + 1;
+                  if (articleIndex >= userItems.length) {
+                    return null;
+                  }
+                  final item = userItems[articleIndex];
+                  return Column(
+                    children: [
+                      ArticleListCard(
+                        article: item.userArticle!,
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/UserArticleDetail',
+                            arguments: item.userArticle,
+                          );
+                        },
+                      ),
+                      if (articleIndex < userItems.length - 1)
+                        const Divider(height: 1, indent: 16, endIndent: 16),
+                    ],
+                  );
+                },
+                childCount: userItems.length > 1 ? userItems.length - 1 : 0,
+              ),
+            ),
+          ],
+          // If only news articles, show them in a list too
+          if (userItems.isEmpty && newsItems.isNotEmpty)
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  if (index >= newsItems.length) return null;
+                  final item = newsItems[index];
+                  return _buildNewsListTile(item);
+                },
+                childCount: newsItems.length,
+              ),
+            ),
           // Bottom padding
           const SliverToBoxAdapter(
             child: SizedBox(height: 80),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildNewsCard(FeedItem item) {
+    return GestureDetector(
+      onTap: () {
+        if (item.newsArticle != null) {
+          Navigator.pushNamed(
+            context,
+            '/ArticleDetails',
+            arguments: item.newsArticle,
+          );
+        }
+      },
+      child: Container(
+        width: 300,
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
+              child: item.imageUrl != null
+                  ? CachedNetworkImage(
+                      imageUrl: item.imageUrl!,
+                      height: 140,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        height: 140,
+                        color: Colors.grey[200],
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        height: 140,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.image_not_supported),
+                      ),
+                    )
+                  : Container(
+                      height: 140,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.article, size: 40),
+                    ),
+            ),
+            // Content
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Source badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3B5BDB).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        item.source.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF3B5BDB),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Title
+                    Expanded(
+                      child: Text(
+                        item.title,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNewsListTile(FeedItem item) {
+    return ListTile(
+      onTap: () {
+        if (item.newsArticle != null) {
+          Navigator.pushNamed(
+            context,
+            '/ArticleDetails',
+            arguments: item.newsArticle,
+          );
+        }
+      },
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: item.imageUrl != null
+            ? CachedNetworkImage(
+                imageUrl: item.imageUrl!,
+                width: 80,
+                height: 60,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) => Container(
+                  width: 80,
+                  height: 60,
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.image_not_supported),
+                ),
+              )
+            : Container(
+                width: 80,
+                height: 60,
+                color: Colors.grey[200],
+                child: const Icon(Icons.article),
+              ),
+      ),
+      title: Text(
+        item.title,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        item.authorName,
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey[600],
+        ),
       ),
     );
   }

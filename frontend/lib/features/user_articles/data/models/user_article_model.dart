@@ -12,6 +12,7 @@ class UserArticleModel extends UserArticleEntity {
     super.description,
     super.content,
     super.thumbnailUrl,
+    super.sourceUrl,
     super.categories,
     super.isDraft = true,
     super.publishedAt,
@@ -30,6 +31,7 @@ class UserArticleModel extends UserArticleEntity {
       description: data['description'] as String?,
       content: data['content'] as String?,
       thumbnailUrl: data['thumbnailUrl'] as String?,
+      sourceUrl: data['sourceUrl'] as String?,
       categories: (data['categories'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
@@ -50,6 +52,7 @@ class UserArticleModel extends UserArticleEntity {
       description: json['description'] as String?,
       content: json['content'] as String?,
       thumbnailUrl: json['thumbnailUrl'] as String?,
+      sourceUrl: json['sourceUrl'] as String?,
       categories: (json['categories'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
@@ -82,6 +85,7 @@ class UserArticleModel extends UserArticleEntity {
       description: entity.description,
       content: entity.content,
       thumbnailUrl: entity.thumbnailUrl,
+      sourceUrl: entity.sourceUrl,
       categories: entity.categories,
       isDraft: entity.isDraft,
       publishedAt: entity.publishedAt,
@@ -100,6 +104,7 @@ class UserArticleModel extends UserArticleEntity {
       'description': description,
       'content': content,
       'thumbnailUrl': thumbnailUrl,
+      'sourceUrl': sourceUrl,
       'categories': categories,
       'isDraft': isDraft,
       'publishedAt':
@@ -127,6 +132,7 @@ class UserArticleModel extends UserArticleEntity {
     String? description,
     String? content,
     String? thumbnailUrl,
+    String? sourceUrl,
     List<String>? categories,
     bool? isDraft,
     DateTime? publishedAt,
@@ -141,6 +147,7 @@ class UserArticleModel extends UserArticleEntity {
       description: description ?? this.description,
       content: content ?? this.content,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      sourceUrl: sourceUrl ?? this.sourceUrl,
       categories: categories ?? this.categories,
       isDraft: isDraft ?? this.isDraft,
       publishedAt: publishedAt ?? this.publishedAt,

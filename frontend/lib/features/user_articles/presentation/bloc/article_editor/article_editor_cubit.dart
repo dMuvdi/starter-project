@@ -96,9 +96,9 @@ class ArticleEditorCubit extends Cubit<ArticleEditorState> {
     ));
   }
 
-  /// Upload the cover image
-  Future<void> uploadCoverImage() async {
-    if (state.localImagePath == null) return;
+  /// Upload the cover image. Returns true if successful or no image to upload.
+  Future<bool> uploadCoverImage() async {
+    if (state.localImagePath == null) return true;
 
     emit(state.copyWith(status: ArticleEditorStatus.uploading));
 
@@ -111,11 +111,13 @@ class ArticleEditorCubit extends Cubit<ArticleEditorState> {
         status: ArticleEditorStatus.editing,
         clearLocalImage: true,
       ));
+      return true;
     } else {
       emit(state.copyWith(
         status: ArticleEditorStatus.error,
         errorMessage: dataState.error?.toString() ?? 'Failed to upload image',
       ));
+      return false;
     }
   }
 
@@ -133,11 +135,16 @@ class ArticleEditorCubit extends Cubit<ArticleEditorState> {
     emit(state.copyWith(status: ArticleEditorStatus.saving));
 
     // Upload image first if there's a local image
-    String? imageUrl = state.coverImageUrl;
     if (state.localImagePath != null) {
-      await uploadCoverImage();
-      imageUrl = state.coverImageUrl;
+      final uploadSuccess = await uploadCoverImage();
+      if (!uploadSuccess) {
+        // Upload failed, error already emitted
+        return;
+      }
     }
+
+    // Get the image URL after potential upload
+    final imageUrl = state.coverImageUrl;
 
     final article = UserArticleEntity(
       id: state.id ?? '',
@@ -181,7 +188,7 @@ class ArticleEditorCubit extends Cubit<ArticleEditorState> {
       {required String authorId, required String authorName}) async {
     if (!state.isValidForPublish) {
       emit(state.copyWith(
-        errorMessage: 'Please fill in title, content, and add a cover image',
+        errorMessage: 'Please fill in both title and content',
         status: ArticleEditorStatus.error,
       ));
       return;
@@ -190,11 +197,16 @@ class ArticleEditorCubit extends Cubit<ArticleEditorState> {
     emit(state.copyWith(status: ArticleEditorStatus.publishing));
 
     // Upload image first if there's a local image
-    String? imageUrl = state.coverImageUrl;
     if (state.localImagePath != null) {
-      await uploadCoverImage();
-      imageUrl = state.coverImageUrl;
+      final uploadSuccess = await uploadCoverImage();
+      if (!uploadSuccess) {
+        // Upload failed, error already emitted
+        return;
+      }
     }
+
+    // Get the image URL after potential upload
+    final imageUrl = state.coverImageUrl;
 
     // First, create or update the article
     final article = UserArticleEntity(

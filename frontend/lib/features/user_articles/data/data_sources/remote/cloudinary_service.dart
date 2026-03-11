@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:news_app_clean_architecture/core/config/env_config.dart';
 
 /// Service for uploading images to Cloudinary.
 /// Uses unsigned uploads with upload presets for security.
@@ -16,12 +17,21 @@ class CloudinaryServiceImpl implements CloudinaryService {
   final String _uploadPreset;
 
   CloudinaryServiceImpl({
-    required String cloudName,
-    required String uploadPreset,
+    String? cloudName,
+    String? uploadPreset,
     Dio? dio,
-  })  : _cloudName = cloudName,
-        _uploadPreset = uploadPreset,
+  })  : _cloudName = cloudName ?? EnvConfig.cloudinaryCloudName,
+        _uploadPreset = uploadPreset ?? EnvConfig.cloudinaryUploadPreset,
         _dio = dio ?? Dio();
+
+  /// Creates a CloudinaryService with configuration from environment variables.
+  factory CloudinaryServiceImpl.fromEnv({Dio? dio}) {
+    return CloudinaryServiceImpl(
+      cloudName: EnvConfig.cloudinaryCloudName,
+      uploadPreset: EnvConfig.cloudinaryUploadPreset,
+      dio: dio,
+    );
+  }
 
   /// Cloudinary upload URL for unsigned uploads.
   String get _uploadUrl =>
@@ -30,6 +40,15 @@ class CloudinaryServiceImpl implements CloudinaryService {
   @override
   Future<String> uploadImage(File imageFile, {String? folder}) async {
     try {
+      // Validate configuration
+      if (_cloudName.isEmpty) {
+        throw Exception(
+          'Cloudinary cloud name not configured. '
+          'Set CLOUDINARY_CLOUD_NAME environment variable. '
+          'See docs/ENV_CONFIG.md for setup instructions.',
+        );
+      }
+
       // Get the file name
       final fileName = imageFile.path.split('/').last;
 
@@ -81,21 +100,31 @@ class CloudinaryServiceImpl implements CloudinaryService {
 /// Helps with dependency injection and configuration.
 class CloudinaryServiceFactory {
   /// Creates a CloudinaryService from environment configuration.
+  /// If cloudName and uploadPreset are not provided, uses EnvConfig values.
   ///
   /// Usage:
   /// ```dart
+  /// // Using environment variables (recommended)
+  /// final service = CloudinaryServiceFactory.create();
+  ///
+  /// // Or with explicit values
   /// final service = CloudinaryServiceFactory.create(
   ///   cloudName: 'your_cloud_name',
   ///   uploadPreset: 'your_upload_preset',
   /// );
   /// ```
   static CloudinaryService create({
-    required String cloudName,
-    required String uploadPreset,
+    String? cloudName,
+    String? uploadPreset,
   }) {
     return CloudinaryServiceImpl(
-      cloudName: cloudName,
-      uploadPreset: uploadPreset,
+      cloudName: cloudName ?? EnvConfig.cloudinaryCloudName,
+      uploadPreset: uploadPreset ?? EnvConfig.cloudinaryUploadPreset,
     );
+  }
+
+  /// Creates a CloudinaryService using only environment variables.
+  static CloudinaryService fromEnv() {
+    return CloudinaryServiceImpl.fromEnv();
   }
 }

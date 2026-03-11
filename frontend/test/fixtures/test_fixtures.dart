@@ -34,7 +34,7 @@ class TestFixtures {
         content:
             'This is the test article content. It contains multiple paragraphs.',
         thumbnailUrl: 'https://example.com/thumbnail.jpg',
-        categories: ['Technology', 'Flutter'],
+        categories: const ['Technology', 'Flutter'],
         isDraft: false,
         publishedAt: DateTime(2024, 1, 15),
         createdAt: DateTime(2024, 1, 10),
@@ -49,14 +49,14 @@ class TestFixtures {
         description: 'Draft article description',
         content: 'This is a draft article content.',
         thumbnailUrl: null,
-        categories: ['Programming'],
+        categories: const ['Programming'],
         isDraft: true,
         publishedAt: null,
         createdAt: DateTime(2024, 1, 20),
         updatedAt: DateTime(2024, 1, 20),
       );
 
-  static UserArticleEntity get newArticle => UserArticleEntity(
+  static UserArticleEntity get newArticle => const UserArticleEntity(
         authorId: 'test-user-id',
         authorName: 'Test User',
         title: 'New Article',
@@ -76,7 +76,7 @@ class TestFixtures {
           title: 'Another Published Article',
           description: 'Another description',
           content: 'More content here.',
-          categories: ['Technology'],
+          categories: const ['Technology'],
           isDraft: false,
           publishedAt: DateTime(2024, 1, 12),
           createdAt: DateTime(2024, 1, 5),

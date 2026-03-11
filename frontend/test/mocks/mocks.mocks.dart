@@ -3,20 +3,31 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
-import 'dart:io' as _i8;
+import 'dart:async' as _i6;
+import 'dart:io' as _i10;
 
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i14;
 import 'package:news_app_clean_architecture/core/resources/data_state.dart'
     as _i2;
-import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart'
-    as _i5;
-import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart'
+import 'package:news_app_clean_architecture/features/auth/data/data_sources/remote/auth_remote_data_source.dart'
+    as _i11;
+import 'package:news_app_clean_architecture/features/auth/data/models/user_model.dart'
     as _i3;
-import 'package:news_app_clean_architecture/features/user_articles/domain/entities/user_article.dart'
+import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart'
     as _i7;
+import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart'
+    as _i5;
+import 'package:news_app_clean_architecture/features/user_articles/data/data_sources/remote/article_remote_data_source.dart'
+    as _i12;
+import 'package:news_app_clean_architecture/features/user_articles/data/data_sources/remote/cloudinary_service.dart'
+    as _i13;
+import 'package:news_app_clean_architecture/features/user_articles/data/models/user_article_model.dart'
+    as _i4;
+import 'package:news_app_clean_architecture/features/user_articles/domain/entities/user_article.dart'
+    as _i9;
 import 'package:news_app_clean_architecture/features/user_articles/domain/repository/user_article_repository.dart'
-    as _i6;
+    as _i8;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -41,22 +52,43 @@ class _FakeDataState_0<T> extends _i1.SmartFake implements _i2.DataState<T> {
         );
 }
 
+class _FakeUserModel_1 extends _i1.SmartFake implements _i3.UserModel {
+  _FakeUserModel_1(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeUserArticleModel_2 extends _i1.SmartFake
+    implements _i4.UserArticleModel {
+  _FakeUserArticleModel_2(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [AuthRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
+class MockAuthRepository extends _i1.Mock implements _i5.AuthRepository {
   MockAuthRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Stream<_i5.UserEntity?> get authStateChanges => (super.noSuchMethod(
+  _i6.Stream<_i7.UserEntity?> get authStateChanges => (super.noSuchMethod(
         Invocation.getter(#authStateChanges),
-        returnValue: _i4.Stream<_i5.UserEntity?>.empty(),
-      ) as _i4.Stream<_i5.UserEntity?>);
+        returnValue: _i6.Stream<_i7.UserEntity?>.empty(),
+      ) as _i6.Stream<_i7.UserEntity?>);
 
   @override
-  _i4.Future<_i2.DataState<_i5.UserEntity>> signIn({
+  _i6.Future<_i2.DataState<_i7.UserEntity>> signIn({
     required String? email,
     required String? password,
   }) =>
@@ -69,8 +101,8 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
             #password: password,
           },
         ),
-        returnValue: _i4.Future<_i2.DataState<_i5.UserEntity>>.value(
-            _FakeDataState_0<_i5.UserEntity>(
+        returnValue: _i6.Future<_i2.DataState<_i7.UserEntity>>.value(
+            _FakeDataState_0<_i7.UserEntity>(
           this,
           Invocation.method(
             #signIn,
@@ -81,10 +113,10 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
             },
           ),
         )),
-      ) as _i4.Future<_i2.DataState<_i5.UserEntity>>);
+      ) as _i6.Future<_i2.DataState<_i7.UserEntity>>);
 
   @override
-  _i4.Future<_i2.DataState<_i5.UserEntity>> signUp({
+  _i6.Future<_i2.DataState<_i7.UserEntity>> signUp({
     required String? email,
     required String? password,
     required String? displayName,
@@ -99,8 +131,8 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
             #displayName: displayName,
           },
         ),
-        returnValue: _i4.Future<_i2.DataState<_i5.UserEntity>>.value(
-            _FakeDataState_0<_i5.UserEntity>(
+        returnValue: _i6.Future<_i2.DataState<_i7.UserEntity>>.value(
+            _FakeDataState_0<_i7.UserEntity>(
           this,
           Invocation.method(
             #signUp,
@@ -112,29 +144,29 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
             },
           ),
         )),
-      ) as _i4.Future<_i2.DataState<_i5.UserEntity>>);
+      ) as _i6.Future<_i2.DataState<_i7.UserEntity>>);
 
   @override
-  _i4.Future<void> signOut() => (super.noSuchMethod(
+  _i6.Future<void> signOut() => (super.noSuchMethod(
         Invocation.method(
           #signOut,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i4.Future<_i5.UserEntity?> getCurrentUser() => (super.noSuchMethod(
+  _i6.Future<_i7.UserEntity?> getCurrentUser() => (super.noSuchMethod(
         Invocation.method(
           #getCurrentUser,
           [],
         ),
-        returnValue: _i4.Future<_i5.UserEntity?>.value(),
-      ) as _i4.Future<_i5.UserEntity?>);
+        returnValue: _i6.Future<_i7.UserEntity?>.value(),
+      ) as _i6.Future<_i7.UserEntity?>);
 
   @override
-  _i4.Future<_i2.DataState<_i5.UserEntity>> updateProfile({
+  _i6.Future<_i2.DataState<_i7.UserEntity>> updateProfile({
     String? displayName,
     String? photoUrl,
   }) =>
@@ -147,8 +179,8 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
             #photoUrl: photoUrl,
           },
         ),
-        returnValue: _i4.Future<_i2.DataState<_i5.UserEntity>>.value(
-            _FakeDataState_0<_i5.UserEntity>(
+        returnValue: _i6.Future<_i2.DataState<_i7.UserEntity>>.value(
+            _FakeDataState_0<_i7.UserEntity>(
           this,
           Invocation.method(
             #updateProfile,
@@ -159,109 +191,109 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
             },
           ),
         )),
-      ) as _i4.Future<_i2.DataState<_i5.UserEntity>>);
+      ) as _i6.Future<_i2.DataState<_i7.UserEntity>>);
 }
 
 /// A class which mocks [UserArticleRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockUserArticleRepository extends _i1.Mock
-    implements _i6.UserArticleRepository {
+    implements _i8.UserArticleRepository {
   MockUserArticleRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.DataState<_i7.UserArticleEntity>> createArticle(
-          _i7.UserArticleEntity? article) =>
+  _i6.Future<_i2.DataState<_i9.UserArticleEntity>> createArticle(
+          _i9.UserArticleEntity? article) =>
       (super.noSuchMethod(
         Invocation.method(
           #createArticle,
           [article],
         ),
-        returnValue: _i4.Future<_i2.DataState<_i7.UserArticleEntity>>.value(
-            _FakeDataState_0<_i7.UserArticleEntity>(
+        returnValue: _i6.Future<_i2.DataState<_i9.UserArticleEntity>>.value(
+            _FakeDataState_0<_i9.UserArticleEntity>(
           this,
           Invocation.method(
             #createArticle,
             [article],
           ),
         )),
-      ) as _i4.Future<_i2.DataState<_i7.UserArticleEntity>>);
+      ) as _i6.Future<_i2.DataState<_i9.UserArticleEntity>>);
 
   @override
-  _i4.Future<_i2.DataState<_i7.UserArticleEntity>> updateArticle(
-          _i7.UserArticleEntity? article) =>
+  _i6.Future<_i2.DataState<_i9.UserArticleEntity>> updateArticle(
+          _i9.UserArticleEntity? article) =>
       (super.noSuchMethod(
         Invocation.method(
           #updateArticle,
           [article],
         ),
-        returnValue: _i4.Future<_i2.DataState<_i7.UserArticleEntity>>.value(
-            _FakeDataState_0<_i7.UserArticleEntity>(
+        returnValue: _i6.Future<_i2.DataState<_i9.UserArticleEntity>>.value(
+            _FakeDataState_0<_i9.UserArticleEntity>(
           this,
           Invocation.method(
             #updateArticle,
             [article],
           ),
         )),
-      ) as _i4.Future<_i2.DataState<_i7.UserArticleEntity>>);
+      ) as _i6.Future<_i2.DataState<_i9.UserArticleEntity>>);
 
   @override
-  _i4.Future<_i2.DataState<void>> deleteArticle(String? articleId) =>
+  _i6.Future<_i2.DataState<void>> deleteArticle(String? articleId) =>
       (super.noSuchMethod(
         Invocation.method(
           #deleteArticle,
           [articleId],
         ),
         returnValue:
-            _i4.Future<_i2.DataState<void>>.value(_FakeDataState_0<void>(
+            _i6.Future<_i2.DataState<void>>.value(_FakeDataState_0<void>(
           this,
           Invocation.method(
             #deleteArticle,
             [articleId],
           ),
         )),
-      ) as _i4.Future<_i2.DataState<void>>);
+      ) as _i6.Future<_i2.DataState<void>>);
 
   @override
-  _i4.Future<_i2.DataState<_i7.UserArticleEntity>> getArticleById(
+  _i6.Future<_i2.DataState<_i9.UserArticleEntity>> getArticleById(
           String? articleId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getArticleById,
           [articleId],
         ),
-        returnValue: _i4.Future<_i2.DataState<_i7.UserArticleEntity>>.value(
-            _FakeDataState_0<_i7.UserArticleEntity>(
+        returnValue: _i6.Future<_i2.DataState<_i9.UserArticleEntity>>.value(
+            _FakeDataState_0<_i9.UserArticleEntity>(
           this,
           Invocation.method(
             #getArticleById,
             [articleId],
           ),
         )),
-      ) as _i4.Future<_i2.DataState<_i7.UserArticleEntity>>);
+      ) as _i6.Future<_i2.DataState<_i9.UserArticleEntity>>);
 
   @override
-  _i4.Future<_i2.DataState<List<_i7.UserArticleEntity>>>
+  _i6.Future<_i2.DataState<List<_i9.UserArticleEntity>>>
       getPublishedArticles() => (super.noSuchMethod(
             Invocation.method(
               #getPublishedArticles,
               [],
             ),
             returnValue:
-                _i4.Future<_i2.DataState<List<_i7.UserArticleEntity>>>.value(
-                    _FakeDataState_0<List<_i7.UserArticleEntity>>(
+                _i6.Future<_i2.DataState<List<_i9.UserArticleEntity>>>.value(
+                    _FakeDataState_0<List<_i9.UserArticleEntity>>(
               this,
               Invocation.method(
                 #getPublishedArticles,
                 [],
               ),
             )),
-          ) as _i4.Future<_i2.DataState<List<_i7.UserArticleEntity>>>);
+          ) as _i6.Future<_i2.DataState<List<_i9.UserArticleEntity>>>);
 
   @override
-  _i4.Future<_i2.DataState<List<_i7.UserArticleEntity>>> getUserArticles(
+  _i6.Future<_i2.DataState<List<_i9.UserArticleEntity>>> getUserArticles(
           String? userId) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -269,18 +301,18 @@ class MockUserArticleRepository extends _i1.Mock
           [userId],
         ),
         returnValue:
-            _i4.Future<_i2.DataState<List<_i7.UserArticleEntity>>>.value(
-                _FakeDataState_0<List<_i7.UserArticleEntity>>(
+            _i6.Future<_i2.DataState<List<_i9.UserArticleEntity>>>.value(
+                _FakeDataState_0<List<_i9.UserArticleEntity>>(
           this,
           Invocation.method(
             #getUserArticles,
             [userId],
           ),
         )),
-      ) as _i4.Future<_i2.DataState<List<_i7.UserArticleEntity>>>);
+      ) as _i6.Future<_i2.DataState<List<_i9.UserArticleEntity>>>);
 
   @override
-  _i4.Future<_i2.DataState<List<_i7.UserArticleEntity>>> getArticlesByCategory(
+  _i6.Future<_i2.DataState<List<_i9.UserArticleEntity>>> getArticlesByCategory(
           String? category) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -288,66 +320,352 @@ class MockUserArticleRepository extends _i1.Mock
           [category],
         ),
         returnValue:
-            _i4.Future<_i2.DataState<List<_i7.UserArticleEntity>>>.value(
-                _FakeDataState_0<List<_i7.UserArticleEntity>>(
+            _i6.Future<_i2.DataState<List<_i9.UserArticleEntity>>>.value(
+                _FakeDataState_0<List<_i9.UserArticleEntity>>(
           this,
           Invocation.method(
             #getArticlesByCategory,
             [category],
           ),
         )),
-      ) as _i4.Future<_i2.DataState<List<_i7.UserArticleEntity>>>);
+      ) as _i6.Future<_i2.DataState<List<_i9.UserArticleEntity>>>);
 
   @override
-  _i4.Future<_i2.DataState<_i7.UserArticleEntity>> publishArticle(
+  _i6.Future<_i2.DataState<_i9.UserArticleEntity>> publishArticle(
           String? articleId) =>
       (super.noSuchMethod(
         Invocation.method(
           #publishArticle,
           [articleId],
         ),
-        returnValue: _i4.Future<_i2.DataState<_i7.UserArticleEntity>>.value(
-            _FakeDataState_0<_i7.UserArticleEntity>(
+        returnValue: _i6.Future<_i2.DataState<_i9.UserArticleEntity>>.value(
+            _FakeDataState_0<_i9.UserArticleEntity>(
           this,
           Invocation.method(
             #publishArticle,
             [articleId],
           ),
         )),
-      ) as _i4.Future<_i2.DataState<_i7.UserArticleEntity>>);
+      ) as _i6.Future<_i2.DataState<_i9.UserArticleEntity>>);
 
   @override
-  _i4.Future<_i2.DataState<_i7.UserArticleEntity>> unpublishArticle(
+  _i6.Future<_i2.DataState<_i9.UserArticleEntity>> unpublishArticle(
           String? articleId) =>
       (super.noSuchMethod(
         Invocation.method(
           #unpublishArticle,
           [articleId],
         ),
-        returnValue: _i4.Future<_i2.DataState<_i7.UserArticleEntity>>.value(
-            _FakeDataState_0<_i7.UserArticleEntity>(
+        returnValue: _i6.Future<_i2.DataState<_i9.UserArticleEntity>>.value(
+            _FakeDataState_0<_i9.UserArticleEntity>(
           this,
           Invocation.method(
             #unpublishArticle,
             [articleId],
           ),
         )),
-      ) as _i4.Future<_i2.DataState<_i7.UserArticleEntity>>);
+      ) as _i6.Future<_i2.DataState<_i9.UserArticleEntity>>);
 
   @override
-  _i4.Future<_i2.DataState<String>> uploadImage(_i8.File? imageFile) =>
+  _i6.Future<_i2.DataState<String>> uploadImage(_i10.File? imageFile) =>
       (super.noSuchMethod(
         Invocation.method(
           #uploadImage,
           [imageFile],
         ),
         returnValue:
-            _i4.Future<_i2.DataState<String>>.value(_FakeDataState_0<String>(
+            _i6.Future<_i2.DataState<String>>.value(_FakeDataState_0<String>(
           this,
           Invocation.method(
             #uploadImage,
             [imageFile],
           ),
         )),
-      ) as _i4.Future<_i2.DataState<String>>);
+      ) as _i6.Future<_i2.DataState<String>>);
+}
+
+/// A class which mocks [AuthRemoteDataSource].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockAuthRemoteDataSource extends _i1.Mock
+    implements _i11.AuthRemoteDataSource {
+  MockAuthRemoteDataSource() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Stream<_i3.UserModel?> get authStateChanges => (super.noSuchMethod(
+        Invocation.getter(#authStateChanges),
+        returnValue: _i6.Stream<_i3.UserModel?>.empty(),
+      ) as _i6.Stream<_i3.UserModel?>);
+
+  @override
+  _i6.Future<_i3.UserModel> signIn({
+    required String? email,
+    required String? password,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #signIn,
+          [],
+          {
+            #email: email,
+            #password: password,
+          },
+        ),
+        returnValue: _i6.Future<_i3.UserModel>.value(_FakeUserModel_1(
+          this,
+          Invocation.method(
+            #signIn,
+            [],
+            {
+              #email: email,
+              #password: password,
+            },
+          ),
+        )),
+      ) as _i6.Future<_i3.UserModel>);
+
+  @override
+  _i6.Future<_i3.UserModel> signUp({
+    required String? email,
+    required String? password,
+    required String? displayName,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #signUp,
+          [],
+          {
+            #email: email,
+            #password: password,
+            #displayName: displayName,
+          },
+        ),
+        returnValue: _i6.Future<_i3.UserModel>.value(_FakeUserModel_1(
+          this,
+          Invocation.method(
+            #signUp,
+            [],
+            {
+              #email: email,
+              #password: password,
+              #displayName: displayName,
+            },
+          ),
+        )),
+      ) as _i6.Future<_i3.UserModel>);
+
+  @override
+  _i6.Future<void> signOut() => (super.noSuchMethod(
+        Invocation.method(
+          #signOut,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<_i3.UserModel?> getCurrentUser() => (super.noSuchMethod(
+        Invocation.method(
+          #getCurrentUser,
+          [],
+        ),
+        returnValue: _i6.Future<_i3.UserModel?>.value(),
+      ) as _i6.Future<_i3.UserModel?>);
+
+  @override
+  _i6.Future<_i3.UserModel> updateProfile({
+    required String? userId,
+    String? displayName,
+    String? photoUrl,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateProfile,
+          [],
+          {
+            #userId: userId,
+            #displayName: displayName,
+            #photoUrl: photoUrl,
+          },
+        ),
+        returnValue: _i6.Future<_i3.UserModel>.value(_FakeUserModel_1(
+          this,
+          Invocation.method(
+            #updateProfile,
+            [],
+            {
+              #userId: userId,
+              #displayName: displayName,
+              #photoUrl: photoUrl,
+            },
+          ),
+        )),
+      ) as _i6.Future<_i3.UserModel>);
+}
+
+/// A class which mocks [ArticleRemoteDataSource].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockArticleRemoteDataSource extends _i1.Mock
+    implements _i12.ArticleRemoteDataSource {
+  MockArticleRemoteDataSource() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Future<_i4.UserArticleModel> createArticle(
+          _i4.UserArticleModel? article) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #createArticle,
+          [article],
+        ),
+        returnValue:
+            _i6.Future<_i4.UserArticleModel>.value(_FakeUserArticleModel_2(
+          this,
+          Invocation.method(
+            #createArticle,
+            [article],
+          ),
+        )),
+      ) as _i6.Future<_i4.UserArticleModel>);
+
+  @override
+  _i6.Future<_i4.UserArticleModel> updateArticle(
+          _i4.UserArticleModel? article) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateArticle,
+          [article],
+        ),
+        returnValue:
+            _i6.Future<_i4.UserArticleModel>.value(_FakeUserArticleModel_2(
+          this,
+          Invocation.method(
+            #updateArticle,
+            [article],
+          ),
+        )),
+      ) as _i6.Future<_i4.UserArticleModel>);
+
+  @override
+  _i6.Future<void> deleteArticle(String? articleId) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteArticle,
+          [articleId],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<_i4.UserArticleModel?> getArticleById(String? articleId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getArticleById,
+          [articleId],
+        ),
+        returnValue: _i6.Future<_i4.UserArticleModel?>.value(),
+      ) as _i6.Future<_i4.UserArticleModel?>);
+
+  @override
+  _i6.Future<List<_i4.UserArticleModel>> getPublishedArticles() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getPublishedArticles,
+          [],
+        ),
+        returnValue: _i6.Future<List<_i4.UserArticleModel>>.value(
+            <_i4.UserArticleModel>[]),
+      ) as _i6.Future<List<_i4.UserArticleModel>>);
+
+  @override
+  _i6.Future<List<_i4.UserArticleModel>> getUserArticles(String? userId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getUserArticles,
+          [userId],
+        ),
+        returnValue: _i6.Future<List<_i4.UserArticleModel>>.value(
+            <_i4.UserArticleModel>[]),
+      ) as _i6.Future<List<_i4.UserArticleModel>>);
+
+  @override
+  _i6.Future<List<_i4.UserArticleModel>> getArticlesByCategory(
+          String? category) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getArticlesByCategory,
+          [category],
+        ),
+        returnValue: _i6.Future<List<_i4.UserArticleModel>>.value(
+            <_i4.UserArticleModel>[]),
+      ) as _i6.Future<List<_i4.UserArticleModel>>);
+
+  @override
+  _i6.Future<_i4.UserArticleModel> publishArticle(String? articleId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #publishArticle,
+          [articleId],
+        ),
+        returnValue:
+            _i6.Future<_i4.UserArticleModel>.value(_FakeUserArticleModel_2(
+          this,
+          Invocation.method(
+            #publishArticle,
+            [articleId],
+          ),
+        )),
+      ) as _i6.Future<_i4.UserArticleModel>);
+
+  @override
+  _i6.Future<_i4.UserArticleModel> unpublishArticle(String? articleId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #unpublishArticle,
+          [articleId],
+        ),
+        returnValue:
+            _i6.Future<_i4.UserArticleModel>.value(_FakeUserArticleModel_2(
+          this,
+          Invocation.method(
+            #unpublishArticle,
+            [articleId],
+          ),
+        )),
+      ) as _i6.Future<_i4.UserArticleModel>);
+}
+
+/// A class which mocks [CloudinaryService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockCloudinaryService extends _i1.Mock implements _i13.CloudinaryService {
+  MockCloudinaryService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Future<String> uploadImage(
+    _i10.File? imageFile, {
+    String? folder,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #uploadImage,
+          [imageFile],
+          {#folder: folder},
+        ),
+        returnValue: _i6.Future<String>.value(_i14.dummyValue<String>(
+          this,
+          Invocation.method(
+            #uploadImage,
+            [imageFile],
+            {#folder: folder},
+          ),
+        )),
+      ) as _i6.Future<String>);
 }

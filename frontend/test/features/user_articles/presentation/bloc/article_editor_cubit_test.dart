@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
-import 'package:news_app_clean_architecture/features/user_articles/domain/entities/user_article.dart';
 import 'package:news_app_clean_architecture/features/user_articles/presentation/bloc/article_editor/article_editor_cubit.dart';
 import 'package:news_app_clean_architecture/features/user_articles/presentation/bloc/article_editor/article_editor_state.dart';
 

@@ -42,10 +42,10 @@ class _ArticleDetailContent extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildArticleHeader(),
-                    _buildAuthorSection(),
-                    _buildContent(),
-                    _buildCategories(),
+                    _buildArticleHeader(context),
+                    _buildAuthorSection(context),
+                    _buildContent(context),
+                    _buildCategories(context),
                     const SizedBox(height: 100), // Space for TTS player
                   ],
                 ),
@@ -145,7 +145,7 @@ class _ArticleDetailContent extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3B5BDB),
+                    color: Theme.of(context).primaryColor,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -165,22 +165,28 @@ class _ArticleDetailContent extends StatelessWidget {
     );
   }
 
-  Widget _buildArticleHeader() {
+  Widget _buildArticleHeader(BuildContext context) {
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
       child: Text(
         article.title ?? '',
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: textColor,
           height: 1.3,
         ),
       ),
     );
   }
 
-  Widget _buildAuthorSection() {
+  Widget _buildAuthorSection(BuildContext context) {
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final primaryColor = Theme.of(context).primaryColor;
+
     final readTime = _calculateReadTime(article.content);
     final publishedDate =
         _formatDate(article.publishedAt ?? article.createdAt ?? DateTime.now());
@@ -212,10 +218,10 @@ class _ArticleDetailContent extends StatelessWidget {
               children: [
                 Text(
                   article.authorName ?? 'Anonymous',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -223,7 +229,7 @@ class _ArticleDetailContent extends StatelessWidget {
                   '$readTime min read • $publishedDate',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: secondaryTextColor,
                   ),
                 ),
               ],
@@ -234,7 +240,7 @@ class _ArticleDetailContent extends StatelessWidget {
               // TODO: Follow author
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3B5BDB),
+              backgroundColor: primaryColor,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -251,13 +257,16 @@ class _ArticleDetailContent extends StatelessWidget {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final primaryColor = Theme.of(context).primaryColor;
+
     if (article.content == null || article.content!.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
+      return Padding(
+        padding: const EdgeInsets.all(16),
         child: Text(
           'No content available',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color),
         ),
       );
     }
@@ -277,22 +286,22 @@ class _ArticleDetailContent extends StatelessWidget {
 
           // Check if it's a quote (starts with "")
           if (paragraph.startsWith('"') && paragraph.endsWith('"')) {
-            return _buildQuote(paragraph);
+            return _buildQuote(paragraph, textColor, primaryColor);
           }
 
           // First paragraph with drop cap
           if (index == 0) {
-            return _buildFirstParagraph(paragraph);
+            return _buildFirstParagraph(paragraph, textColor);
           }
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(
               paragraph,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 height: 1.8,
-                color: Colors.black87,
+                color: textColor,
               ),
             ),
           );
@@ -301,7 +310,7 @@ class _ArticleDetailContent extends StatelessWidget {
     );
   }
 
-  Widget _buildFirstParagraph(String text) {
+  Widget _buildFirstParagraph(String text, Color textColor) {
     if (text.isEmpty) return const SizedBox.shrink();
 
     final firstLetter = text.substring(0, 1);
@@ -314,19 +323,19 @@ class _ArticleDetailContent extends StatelessWidget {
           children: [
             TextSpan(
               text: firstLetter,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 56,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: textColor,
                 height: 0.8,
               ),
             ),
             TextSpan(
               text: restOfText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 height: 1.8,
-                color: Colors.black87,
+                color: textColor,
               ),
             ),
           ],
@@ -335,33 +344,38 @@ class _ArticleDetailContent extends StatelessWidget {
     );
   }
 
-  Widget _buildQuote(String text) {
+  Widget _buildQuote(String text, Color textColor, Color primaryColor) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF3B5BDB).withOpacity(0.1),
+        color: primaryColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
-        border: const Border(
+        border: Border(
           left: BorderSide(
-            color: Color(0xFF3B5BDB),
+            color: primaryColor,
             width: 4,
           ),
         ),
       ),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           fontStyle: FontStyle.italic,
           height: 1.6,
-          color: Colors.black87,
+          color: textColor,
         ),
       ),
     );
   }
 
-  Widget _buildCategories() {
+  Widget _buildCategories(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final chipBgColor = isDark ? Colors.grey[800] : Colors.grey[100];
+    final chipBorderColor = isDark ? Colors.grey[700]! : Colors.grey[300]!;
+    final chipTextColor = isDark ? Colors.grey[300] : Colors.grey[700];
+
     if ((article.categories ?? []).isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -373,15 +387,15 @@ class _ArticleDetailContent extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: chipBgColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey[300]!),
+              border: Border.all(color: chipBorderColor),
             ),
             child: Text(
               '#$category',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[700],
+                color: chipTextColor,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -392,6 +406,13 @@ class _ArticleDetailContent extends StatelessWidget {
   }
 
   Widget _buildTtsPlayer(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+    final shadowColor = isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.1);
+    final primaryColor = Theme.of(context).primaryColor;
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final progressBgColor = isDark ? Colors.grey[700] : Colors.grey[200];
+
     return Positioned(
       left: 0,
       right: 0,
@@ -403,10 +424,10 @@ class _ArticleDetailContent extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: backgroundColor,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: shadowColor,
                   blurRadius: 10,
                   offset: const Offset(0, -2),
                 ),
@@ -423,7 +444,7 @@ class _ArticleDetailContent extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF3B5BDB),
+                      color: primaryColor,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Icon(
@@ -440,12 +461,12 @@ class _ArticleDetailContent extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
+                      Text(
                         'VOICE READING',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF3B5BDB),
+                          color: primaryColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -455,9 +476,9 @@ class _ArticleDetailContent extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: state.progress,
-                          backgroundColor: Colors.grey[200],
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Color(0xFF3B5BDB),
+                          backgroundColor: progressBgColor,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            primaryColor,
                           ),
                           minHeight: 4,
                         ),
@@ -471,14 +492,14 @@ class _ArticleDetailContent extends StatelessWidget {
                   '${state.formattedPosition} / ${state.formattedDuration}',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: secondaryTextColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(width: 8),
                 // Close button
                 IconButton(
-                  icon: Icon(Icons.close, color: Colors.grey[600], size: 20),
+                  icon: Icon(Icons.close, color: secondaryTextColor, size: 20),
                   onPressed: () {
                     context.read<TtsCubit>().stop();
                   },

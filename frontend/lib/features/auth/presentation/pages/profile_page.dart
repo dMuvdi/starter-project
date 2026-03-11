@@ -5,9 +5,32 @@ import '../../domain/entities/user.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../../../user_articles/presentation/bloc/user_articles/user_articles_bloc.dart';
+import '../../../user_articles/presentation/bloc/user_articles/user_articles_event.dart';
+import '../../../user_articles/presentation/bloc/user_articles/user_articles_state.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    _loadUserArticles();
+  }
+
+  void _loadUserArticles() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated && authState.user?.id != null) {
+      context.read<UserArticlesBloc>().add(
+            LoadUserArticles(userId: authState.user!.id!),
+          );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,15 +191,18 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildStats() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
-        children: [
-          _buildStatItem('128', 'ARTICLES'),
-          _buildStatItem('4.2k', 'FOLLOWERS'),
-          _buildStatItem('85', 'FOLLOWING'),
-        ],
-      ),
+    return BlocBuilder<UserArticlesBloc, UserArticlesState>(
+      builder: (context, state) {
+        final articleCount = state.articles?.length ?? 0;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
+            children: [
+              _buildStatItem('$articleCount', 'ARTICLES'),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -236,24 +262,9 @@ class ProfilePage extends StatelessWidget {
           icon: Icons.settings_outlined,
           iconColor: Colors.grey[600]!,
           title: 'Settings',
-          subtitle: 'Privacy, language, and theme',
-          onTap: () {},
-        ),
-        _buildSettingsTile(
-          icon: Icons.notifications_outlined,
-          iconColor: Colors.grey[600]!,
-          title: 'Notifications',
-          subtitle: 'Alerts, updates, and sounds',
-          showBadge: true,
-          onTap: () {},
-        ),
-        _buildSettingsTile(
-          icon: Icons.bookmark_outline,
-          iconColor: Colors.grey[600]!,
-          title: 'Reading List',
-          subtitle: '24 saved articles',
+          subtitle: 'Theme and language',
           onTap: () {
-            Navigator.pushNamed(context, '/SavedArticles');
+            Navigator.pushNamed(context, '/Settings');
           },
         ),
         const Divider(height: 32),

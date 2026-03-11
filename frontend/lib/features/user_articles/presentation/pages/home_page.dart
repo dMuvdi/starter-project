@@ -7,7 +7,7 @@ import '../bloc/user_articles/user_articles_event.dart';
 import '../bloc/user_articles/user_articles_state.dart';
 import '../widgets/featured_article_card.dart';
 import '../widgets/article_list_card.dart';
-import '../widgets/category_widgets.dart';
+
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart' as auth;
 import '../../../daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
@@ -21,18 +21,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<String> _categories = [
-    'For You',
-    'Trending',
-    'World',
-    'Tech',
-    'Politics',
-    'Sports',
-    'Business',
-    'Science',
-  ];
-  String _selectedCategory = 'For You';
   int _selectedNavIndex = 0;
+  bool _showAllNews = false;
 
   @override
   void initState() {
@@ -71,26 +61,6 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: [
         _buildHeader(),
-        _buildSearchBar(),
-        const SizedBox(height: 16),
-        CategoryTabBar(
-          categories: _categories,
-          selectedCategory: _selectedCategory,
-          onCategorySelected: (category) {
-            setState(() {
-              _selectedCategory = category;
-            });
-            if (category == 'For You') {
-              context
-                  .read<UserArticlesBloc>()
-                  .add(const LoadPublishedArticles());
-            } else {
-              context.read<UserArticlesBloc>().add(
-                    LoadArticlesByCategory(category: category),
-                  );
-            }
-          },
-        ),
         const SizedBox(height: 16),
         Expanded(
           child: BlocBuilder<RemoteArticlesBloc, RemoteArticlesState>(
@@ -172,12 +142,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const Spacer(),
-          IconButton(
-            onPressed: () {
-              // TODO: Notifications
-            },
-            icon: const Icon(Icons.notifications_outlined),
-          ),
           BlocBuilder<AuthBloc, auth.AuthState>(
             builder: (context, state) {
               if (state is auth.Authenticated && state.user?.photoUrl != null) {
@@ -206,38 +170,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: 16),
-            Icon(Icons.search, color: Colors.grey[500]),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search news, topics, and more...',
-                  hintStyle: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 14,
-                  ),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildBlendedFeed(List<FeedItem> feedItems) {
     // Separate news and user articles
     final newsItems = feedItems.where((f) => f.isFromNewsApi).toList();
@@ -251,39 +183,71 @@ class _HomePageState extends State<HomePage> {
         slivers: [
           // Trending News Section (from NewsAPI)
           if (newsItems.isNotEmpty) ...[
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(Icons.trending_up, color: Color(0xFF3B5BDB), size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Breaking News',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                    const Row(
+                      children: [
+                        Icon(Icons.trending_up,
+                            color: Color(0xFF3B5BDB), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Breaking News',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _showAllNews = !_showAllNews;
+                        });
+                      },
+                      child: Text(
+                        _showAllNews ? 'Show Less' : 'See All',
+                        style: const TextStyle(
+                          color: Color(0xFF3B5BDB),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 260,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  itemCount: newsItems.length > 10 ? 10 : newsItems.length,
-                  itemBuilder: (context, index) {
+            if (_showAllNews)
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    if (index >= newsItems.length) return null;
                     final item = newsItems[index];
-                    return _buildNewsCard(item);
+                    return _buildNewsListTile(item);
                   },
+                  childCount: newsItems.length,
+                ),
+              )
+            else
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 260,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: newsItems.length > 10 ? 10 : newsItems.length,
+                    itemBuilder: (context, index) {
+                      final item = newsItems[index];
+                      return _buildNewsCard(item);
+                    },
+                  ),
                 ),
               ),
-            ),
           ],
           // Community Articles Header
           if (userItems.isNotEmpty) ...[

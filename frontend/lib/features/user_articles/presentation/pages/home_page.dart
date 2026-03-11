@@ -86,11 +86,13 @@ class _HomePageState extends State<HomePage> {
                     }
                   }
 
-                  // Add user articles
+                  // Add user articles (only published ones)
                   if (userState is UserArticlesLoaded &&
                       userState.articles != null) {
                     for (final article in userState.articles!) {
-                      feedItems.add(FeedItem.fromUserArticle(article));
+                      if (article.isDraft == false) {
+                        feedItems.add(FeedItem.fromUserArticle(article));
+                      }
                     }
                   }
 

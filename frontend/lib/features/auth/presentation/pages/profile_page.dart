@@ -70,13 +70,13 @@ class _ProfilePageState extends State<ProfilePage> {
           icon: Icon(Icons.more_vert, color: iconColor),
           onSelected: (value) {
             if (value == 'edit') {
-              // Navigate to edit profile
+              Navigator.pushNamed(context, '/EditProfile');
             }
           },
           itemBuilder: (context) => [
             const PopupMenuItem(
               value: 'edit',
-              child: Text('Edit Profile'),
+              child: Text('Change Password'),
             ),
           ],
         ),
@@ -103,64 +103,38 @@ class _ProfilePageState extends State<ProfilePage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor =
         Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
-    final secondaryTextColor =
-        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return Column(
       children: [
         // Profile Avatar
-        Stack(
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFF5C9A0),
-                border: Border.all(
-                    color: isDark ? Colors.grey[800]! : Colors.white, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFFF5C9A0),
+            border: Border.all(
+                color: isDark ? Colors.grey[800]! : Colors.white, width: 4),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-              child: ClipOval(
-                child: user.photoUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: user.photoUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => const Icon(Icons.person,
-                            size: 60, color: Colors.white),
-                        errorWidget: (context, url, error) => const Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Colors.white),
-                      )
-                    : const Icon(Icons.person, size: 60, color: Colors.white),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF3B5BDB),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                child: const Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                  size: 18,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
+          child: ClipOval(
+            child: user.photoUrl != null
+                ? CachedNetworkImage(
+                    imageUrl: user.photoUrl!,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        const Icon(Icons.person, size: 60, color: Colors.white),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.person, size: 60, color: Colors.white),
+                  )
+                : const Icon(Icons.person, size: 60, color: Colors.white),
+          ),
         ),
         const SizedBox(height: 16),
         // Name
@@ -170,30 +144,6 @@ class _ProfilePageState extends State<ProfilePage> {
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: textColor,
-          ),
-        ),
-        const SizedBox(height: 4),
-        // Title/Role
-        const Text(
-          'Senior Tech Correspondent',
-          style: TextStyle(
-            fontSize: 14,
-            color: Color(0xFF3B5BDB),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 12),
-        // Bio
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Text(
-            'Independent journalist covering the intersection of emerging technology, global policy, and digital society.',
-            style: TextStyle(
-              fontSize: 14,
-              color: secondaryTextColor,
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
           ),
         ),
       ],

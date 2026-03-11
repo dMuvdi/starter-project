@@ -32,6 +32,13 @@ abstract class AuthRemoteDataSource {
     String? displayName,
     String? photoUrl,
   });
+
+  /// Changes the user's password.
+  /// Requires re-authentication with current password.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
 }
 
 /// Implementation of AuthRemoteDataSource using Firebase.
@@ -175,5 +182,32 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     final updatedDoc = await _usersCollection.doc(userId).get();
     return UserModel.fromFirestore(updatedDoc);
+  }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw Exception('No authenticated user');
+    }
+
+    final email = user.email;
+    if (email == null) {
+      throw Exception('User has no email');
+    }
+
+    // Re-authenticate user with current password
+    final credential = firebase_auth.EmailAuthProvider.credential(
+      email: email,
+      password: currentPassword,
+    );
+
+    await user.reauthenticateWithCredential(credential);
+
+    // Update password
+    await user.updatePassword(newPassword);
   }
 }

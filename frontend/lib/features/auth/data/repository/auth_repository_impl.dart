@@ -85,6 +85,24 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<DataState<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _remoteDataSource.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return const DataSuccess(null);
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      return DataFailed(_mapFirebaseAuthException(e));
+    } catch (e) {
+      return DataFailed(Exception('Change password failed: ${e.toString()}'));
+    }
+  }
+
   /// Maps Firebase Auth exceptions to user-friendly messages.
   Exception _mapFirebaseAuthException(firebase_auth.FirebaseAuthException e) {
     switch (e.code) {

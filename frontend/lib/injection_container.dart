@@ -23,6 +23,7 @@ import 'features/auth/domain/usecases/sign_up.dart';
 import 'features/auth/domain/usecases/sign_out.dart';
 import 'features/auth/domain/usecases/get_current_user.dart';
 import 'features/auth/domain/usecases/get_auth_state_changes.dart';
+import 'features/auth/domain/usecases/change_password.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
 // User Articles Feature
@@ -96,6 +97,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<GetAuthStateChangesUseCase>(
       GetAuthStateChangesUseCase(sl<AuthRepository>()));
 
+  sl.registerSingleton<ChangePasswordUseCase>(
+      ChangePasswordUseCase(sl<AuthRepository>()));
+
   // Bloc
   sl.registerFactory<AuthBloc>(() => AuthBloc(
         signInUseCase: sl<SignInUseCase>(),
@@ -103,6 +107,7 @@ Future<void> initializeDependencies() async {
         signOutUseCase: sl<SignOutUseCase>(),
         getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
         getAuthStateChangesUseCase: sl<GetAuthStateChangesUseCase>(),
+        changePasswordUseCase: sl<ChangePasswordUseCase>(),
       ));
 
   // ==================== User Articles Feature ====================

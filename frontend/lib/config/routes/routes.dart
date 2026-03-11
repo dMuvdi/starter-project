@@ -12,6 +12,7 @@ import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/profile_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
+import '../../features/auth/presentation/pages/edit_profile_page.dart';
 
 // User Articles Feature
 import '../../features/user_articles/domain/entities/user_article.dart';
@@ -36,6 +37,9 @@ class AppRoutes {
 
       case '/Settings':
         return _materialRoute(const SettingsPage());
+
+      case '/EditProfile':
+        return _materialRoute(const EditProfilePage());
 
       // User Articles routes
       case '/Home':

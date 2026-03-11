@@ -5,12 +5,16 @@ import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/sign_in.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/sign_up.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/usecases/change_password.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_event.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
 
 import '../../../../mocks/mocks.dart';
 import '../../../../fixtures/test_fixtures.dart';
+
+// Manual mock for ChangePasswordUseCase until mocks are regenerated
+class MockChangePasswordUseCase extends Mock implements ChangePasswordUseCase {}
 
 void main() {
   late AuthBloc authBloc;
@@ -19,6 +23,7 @@ void main() {
   late MockSignOutUseCase mockSignOutUseCase;
   late MockGetCurrentUserUseCase mockGetCurrentUserUseCase;
   late MockGetAuthStateChangesUseCase mockGetAuthStateChangesUseCase;
+  late MockChangePasswordUseCase mockChangePasswordUseCase;
 
   setUp(() {
     mockSignInUseCase = MockSignInUseCase();
@@ -26,6 +31,7 @@ void main() {
     mockSignOutUseCase = MockSignOutUseCase();
     mockGetCurrentUserUseCase = MockGetCurrentUserUseCase();
     mockGetAuthStateChangesUseCase = MockGetAuthStateChangesUseCase();
+    mockChangePasswordUseCase = MockChangePasswordUseCase();
 
     // Setup default stream for auth state changes
     when(mockGetAuthStateChangesUseCase.call())
@@ -37,6 +43,7 @@ void main() {
       signOutUseCase: mockSignOutUseCase,
       getCurrentUserUseCase: mockGetCurrentUserUseCase,
       getAuthStateChangesUseCase: mockGetAuthStateChangesUseCase,
+      changePasswordUseCase: mockChangePasswordUseCase,
     );
   });
 

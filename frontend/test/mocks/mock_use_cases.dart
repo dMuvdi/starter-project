@@ -7,6 +7,7 @@ import 'package:news_app_clean_architecture/features/auth/domain/usecases/sign_u
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/sign_out.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/get_current_user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/get_auth_state_changes.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/usecases/change_password.dart';
 
 // User Articles Feature Use Cases
 import 'package:news_app_clean_architecture/features/user_articles/domain/usecases/get_user_articles.dart';
@@ -29,6 +30,7 @@ import 'package:news_app_clean_architecture/features/user_articles/domain/usecas
   SignOutUseCase,
   GetCurrentUserUseCase,
   GetAuthStateChangesUseCase,
+  ChangePasswordUseCase,
 
   // User Articles Use Cases
   GetUserArticlesUseCase,

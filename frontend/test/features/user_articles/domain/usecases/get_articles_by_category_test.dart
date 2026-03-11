@@ -93,7 +93,7 @@ void main() {
           .thenAnswer((_) async => DataSuccess([]));
 
       // Act
-      final result = await useCase(params: lowercaseCategory);
+      await useCase(params: lowercaseCategory);
 
       // Assert
       verify(mockRepository.getArticlesByCategory(lowercaseCategory)).called(1);

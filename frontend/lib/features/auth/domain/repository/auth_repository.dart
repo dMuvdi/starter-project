@@ -34,4 +34,11 @@ abstract class AuthRepository {
     String? displayName,
     String? photoUrl,
   });
+
+  /// Changes the user's password.
+  /// Requires the current password for re-authentication.
+  Future<DataState<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
 }

@@ -71,3 +71,21 @@ class ProfileUpdating extends AuthState {
 class ProfileUpdated extends AuthState {
   const ProfileUpdated(UserEntity user) : super(user: user);
 }
+
+/// State when password change is in progress
+class PasswordChanging extends AuthState {
+  const PasswordChanging(UserEntity user) : super(user: user);
+}
+
+/// State when password change succeeds
+class PasswordChanged extends AuthState {
+  const PasswordChanged(UserEntity user) : super(user: user);
+}
+
+/// State when password change fails
+class PasswordChangeError extends AuthState {
+  const PasswordChangeError({
+    required String message,
+    UserEntity? user,
+  }) : super(errorMessage: message, user: user);
+}

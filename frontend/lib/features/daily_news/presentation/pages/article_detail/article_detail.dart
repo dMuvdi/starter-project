@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../../injection_container.dart';
 import '../../../domain/entities/article.dart';
 import '../../bloc/article/local/local_article_bloc.dart';
-import '../../bloc/article/local/local_article_event.dart';
 import '../../../../user_articles/presentation/bloc/article_detail/tts_cubit.dart';
 import '../../../../user_articles/presentation/bloc/article_detail/tts_state.dart';
 
@@ -459,18 +458,6 @@ class _ArticleDetailContent extends StatelessWidget {
         },
       ),
     );
-  }
-
-  void _saveArticle(BuildContext context) {
-    if (article != null) {
-      BlocProvider.of<LocalArticleBloc>(context).add(SaveArticle(article!));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.black,
-          content: Text('Article saved successfully.'),
-        ),
-      );
-    }
   }
 
   int _calculateReadTime(String? content) {

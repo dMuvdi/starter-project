@@ -6,6 +6,7 @@ import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/sign_in.dart';
 import '../../domain/usecases/sign_out.dart';
 import '../../domain/usecases/sign_up.dart';
+import '../../domain/usecases/change_password.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -15,6 +16,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignOutUseCase _signOutUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final GetAuthStateChangesUseCase _getAuthStateChangesUseCase;
+  final ChangePasswordUseCase _changePasswordUseCase;
 
   StreamSubscription<UserEntity?>? _authStateSubscription;
 
@@ -24,17 +26,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required SignOutUseCase signOutUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
     required GetAuthStateChangesUseCase getAuthStateChangesUseCase,
+    required ChangePasswordUseCase changePasswordUseCase,
   })  : _signInUseCase = signInUseCase,
         _signUpUseCase = signUpUseCase,
         _signOutUseCase = signOutUseCase,
         _getCurrentUserUseCase = getCurrentUserUseCase,
         _getAuthStateChangesUseCase = getAuthStateChangesUseCase,
+        _changePasswordUseCase = changePasswordUseCase,
         super(const AuthInitial()) {
     on<CheckAuthStatus>(_onCheckAuthStatus);
     on<SignInRequested>(_onSignInRequested);
     on<SignUpRequested>(_onSignUpRequested);
     on<SignOutRequested>(_onSignOutRequested);
     on<AuthStateChanged>(_onAuthStateChanged);
+    on<ChangePasswordRequested>(_onChangePasswordRequested);
 
     // Start listening to auth state changes
     _startAuthStateListener();
@@ -148,6 +153,38 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     } else {
       emit(const Unauthenticated());
+    }
+  }
+
+  Future<void> _onChangePasswordRequested(
+    ChangePasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    final currentUser = await _getCurrentUserUseCase();
+    if (currentUser == null) {
+      emit(const PasswordChangeError(message: 'No authenticated user'));
+      return;
+    }
+
+    emit(PasswordChanging(currentUser));
+
+    final dataState = await _changePasswordUseCase(
+      params: ChangePasswordParams(
+        currentPassword: event.currentPassword,
+        newPassword: event.newPassword,
+      ),
+    );
+
+    if (dataState.exception == null) {
+      emit(PasswordChanged(currentUser));
+      // Return to authenticated state after brief success indication
+      emit(Authenticated(currentUser));
+    } else {
+      final errorString = dataState.exception?.toString();
+      emit(PasswordChangeError(
+        message: errorString ?? 'Password change failed',
+        user: currentUser,
+      ));
     }
   }
 

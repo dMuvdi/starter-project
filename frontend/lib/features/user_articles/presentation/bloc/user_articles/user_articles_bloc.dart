@@ -53,10 +53,13 @@ class UserArticlesBloc extends Bloc<UserArticlesEvent, UserArticlesState> {
       final articles = dataState.data!;
       final publishedCount = articles.where((a) => !a.isDraft).length;
       final draftsCount = articles.where((a) => a.isDraft).length;
+      // Default to published filter (first tab)
+      final filteredArticles = articles.where((a) => !a.isDraft).toList();
 
       emit(UserArticlesLoaded(
         articles: articles,
-        filteredArticles: articles,
+        filteredArticles: filteredArticles,
+        currentFilter: ArticleFilter.published,
         publishedCount: publishedCount,
         draftsCount: draftsCount,
       ));
@@ -166,7 +169,6 @@ class UserArticlesBloc extends Bloc<UserArticlesEvent, UserArticlesState> {
       case ArticleFilter.drafts:
         return articles.where((a) => a.isDraft).toList();
       case ArticleFilter.all:
-      default:
         return articles;
     }
   }

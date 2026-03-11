@@ -85,19 +85,22 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
 
   PreferredSizeWidget _buildAppBar(
       BuildContext context, ArticleEditorState state) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark ? Colors.white : Colors.black;
+    final primaryColor = Theme.of(context).primaryColor;
+
     final isLoading = state.status == ArticleEditorStatus.saving ||
         state.status == ArticleEditorStatus.publishing ||
         state.status == ArticleEditorStatus.uploading;
 
     return AppBar(
       leading: IconButton(
-        icon: const Icon(Icons.close, color: Colors.black),
+        icon: Icon(Icons.close, color: iconColor),
         onPressed: () => _onClose(context, state),
       ),
       title: Text(
         state.isDraft ? 'Draft' : 'Edit Article',
-        style:
-            const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+        style: TextStyle(color: iconColor, fontWeight: FontWeight.w600),
       ),
       actions: [
         TextButton(
@@ -105,7 +108,7 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
           child: Text(
             'Save Draft',
             style: TextStyle(
-              color: isLoading ? Colors.grey : const Color(0xFF3B5BDB),
+              color: isLoading ? Colors.grey : primaryColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -115,7 +118,7 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
           child: ElevatedButton(
             onPressed: isLoading ? null : () => _publish(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3B5BDB),
+              backgroundColor: primaryColor,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -164,6 +167,15 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
 
   Widget _buildCoverImageSection(
       BuildContext context, ArticleEditorState state) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final containerColor = isDark ? Colors.grey[800] : Colors.grey[100];
+    final borderColor = isDark ? Colors.grey[700]! : Colors.grey[300]!;
+
     final hasImage =
         state.coverImageUrl != null || state.localImagePath != null;
 
@@ -173,10 +185,10 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
         height: 200,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: containerColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.grey[300]!,
+            color: borderColor,
             style: BorderStyle.solid,
           ),
         ),
@@ -230,22 +242,22 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF3B5BDB).withOpacity(0.1),
+                      color: primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.add_photo_alternate_outlined,
-                      color: Color(0xFF3B5BDB),
+                      color: primaryColor,
                       size: 32,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Add Cover Image',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: textColor,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -253,7 +265,7 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
                     'Optimal size 1200 × 630px',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey[600],
+                      color: secondaryTextColor,
                     ),
                   ),
                 ],
@@ -263,19 +275,25 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
   }
 
   Widget _buildTitleField(BuildContext context) {
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final hintColor =
+        Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.5) ??
+            Colors.black26;
+
     return TextField(
       controller: _titleController,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.bold,
-        color: Colors.black54,
+        color: textColor,
       ),
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         hintText: 'Article Title',
         hintStyle: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.bold,
-          color: Colors.black26,
+          color: hintColor,
         ),
         border: InputBorder.none,
       ),
@@ -287,18 +305,24 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
   }
 
   Widget _buildContentField(BuildContext context) {
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final hintColor =
+        Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.5) ??
+            Colors.grey;
+
     return TextField(
       controller: _contentController,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         height: 1.6,
-        color: Colors.black54,
+        color: textColor,
       ),
       decoration: InputDecoration(
         hintText: 'Start writing your story...',
         hintStyle: TextStyle(
           fontSize: 16,
-          color: Colors.grey[400],
+          color: hintColor,
         ),
         border: InputBorder.none,
       ),
@@ -311,6 +335,16 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
   }
 
   Widget _buildBottomBar(BuildContext context, ArticleEditorState state) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final backgroundColor =
+        isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+    final borderColor = isDark ? Colors.grey[800]! : Colors.grey[200]!;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final chipBgColor = isDark ? Colors.grey[800] : Colors.grey[100];
+    final chipTextColor = isDark ? Colors.grey[300] : Colors.grey[700];
+
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -319,9 +353,9 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
         12 + MediaQuery.of(context).padding.bottom,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: backgroundColor,
         border: Border(
-          top: BorderSide(color: Colors.grey[200]!),
+          top: BorderSide(color: borderColor),
         ),
       ),
       child: Column(
@@ -343,9 +377,8 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
                           .read<ArticleEditorCubit>()
                           .removeCategory(category);
                     },
-                    backgroundColor: Colors.grey[100],
-                    labelStyle:
-                        TextStyle(color: Colors.grey[700], fontSize: 12),
+                    backgroundColor: chipBgColor,
+                    labelStyle: TextStyle(color: chipTextColor, fontSize: 12),
                   );
                 }).toList(),
               ),
@@ -358,13 +391,13 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.tag, size: 18, color: Colors.grey[600]),
+                    Icon(Icons.tag, size: 18, color: secondaryTextColor),
                     const SizedBox(width: 4),
                     Text(
                       'Add Tags',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: secondaryTextColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -381,13 +414,13 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.settings_outlined,
-                        size: 18, color: Colors.grey[600]),
+                        size: 18, color: secondaryTextColor),
                     const SizedBox(width: 4),
                     Text(
                       'Settings',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: secondaryTextColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -400,7 +433,7 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
                 '${state.wordCount} words',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[500],
+                  color: secondaryTextColor,
                 ),
               ),
             ],
@@ -415,7 +448,7 @@ class _ArticleEditorPageState extends State<ArticleEditorPage> {
                   ? null
                   : () => _publish(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3B5BDB),
+                backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

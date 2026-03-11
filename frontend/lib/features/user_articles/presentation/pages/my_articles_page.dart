@@ -5,6 +5,8 @@ import '../../domain/entities/user_article.dart';
 import '../bloc/user_articles/user_articles_bloc.dart';
 import '../bloc/user_articles/user_articles_event.dart';
 import '../bloc/user_articles/user_articles_state.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart' as auth;
 
 class MyArticlesPage extends StatefulWidget {
   const MyArticlesPage({Key? key}) : super(key: key);
@@ -20,8 +22,18 @@ class _MyArticlesPageState extends State<MyArticlesPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChanged);
+    _loadUserArticles();
+  }
+
+  void _loadUserArticles() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is auth.Authenticated && authState.user?.id != null) {
+      context.read<UserArticlesBloc>().add(
+            LoadUserArticles(userId: authState.user!.id!),
+          );
+    }
   }
 
   @override
@@ -34,7 +46,6 @@ class _MyArticlesPageState extends State<MyArticlesPage>
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) {
       final filter = [
-        ArticleFilter.all,
         ArticleFilter.published,
         ArticleFilter.drafts,
       ][_tabController.index];
@@ -101,7 +112,8 @@ class _MyArticlesPageState extends State<MyArticlesPage>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final iconColor = isDark ? Colors.white : Colors.black;
     final primaryColor = Theme.of(context).primaryColor;
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return AppBar(
       leading: IconButton(
@@ -115,14 +127,6 @@ class _MyArticlesPageState extends State<MyArticlesPage>
           fontWeight: FontWeight.w600,
         ),
       ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.search, color: iconColor),
-          onPressed: () {
-            // TODO: Implement search
-          },
-        ),
-      ],
       bottom: TabBar(
         controller: _tabController,
         labelColor: primaryColor,
@@ -130,7 +134,6 @@ class _MyArticlesPageState extends State<MyArticlesPage>
         indicatorColor: primaryColor,
         indicatorWeight: 3,
         tabs: const [
-          Tab(text: 'Saved'),
           Tab(text: 'Published'),
           Tab(text: 'Drafts'),
         ],
@@ -170,7 +173,8 @@ class _MyArticlesPageState extends State<MyArticlesPage>
   }
 
   Widget _buildEmptyState() {
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
     final primaryColor = Theme.of(context).primaryColor;
 
     return Center(
@@ -227,7 +231,8 @@ class _MyArticlesPageState extends State<MyArticlesPage>
   }
 
   Widget _buildErrorState(String? message) {
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return Center(
       child: Column(
@@ -380,7 +385,8 @@ class _ArticleListItem extends StatelessWidget {
   }
 
   Widget _buildPopupMenu(BuildContext context) {
-    final secondaryColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final secondaryColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return PopupMenuButton<String>(
       icon: Icon(Icons.more_vert, color: secondaryColor),
@@ -482,8 +488,10 @@ class _ArticleListItem extends StatelessWidget {
 
   Widget _buildContent(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
     final primaryColor = Theme.of(context).primaryColor;
     final draftBgColor = isDark ? Colors.grey[700] : Colors.grey[200];
     final draftTextColor = isDark ? Colors.grey[300] : Colors.grey[700];
@@ -519,9 +527,8 @@ class _ArticleListItem extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: article.isDraft
-                ? draftBgColor
-                : primaryColor.withOpacity(0.1),
+            color:
+                article.isDraft ? draftBgColor : primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(

@@ -101,8 +101,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildProfileHeader(UserEntity user) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return Column(
       children: [
@@ -115,7 +117,8 @@ class _ProfilePageState extends State<ProfilePage> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: const Color(0xFFF5C9A0),
-                border: Border.all(color: isDark ? Colors.grey[800]! : Colors.white, width: 4),
+                border: Border.all(
+                    color: isDark ? Colors.grey[800]! : Colors.white, width: 4),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
@@ -215,8 +218,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildStatItem(String value, String label) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
     final borderColor = isDark ? Colors.grey[700]! : Colors.grey[300]!;
 
     return Expanded(
@@ -255,7 +260,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildSettingsSection(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,8 +312,10 @@ class _ProfilePageState extends State<ProfilePage> {
     required VoidCallback onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
@@ -350,7 +358,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       shape: BoxShape.circle,
                     ),
                   ),
-                Icon(Icons.chevron_right, color: isDark ? Colors.grey[600] : Colors.grey[400]),
+                Icon(Icons.chevron_right,
+                    color: isDark ? Colors.grey[600] : Colors.grey[400]),
               ],
             )
           : null,

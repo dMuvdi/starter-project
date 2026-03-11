@@ -91,28 +91,33 @@ class _MyArticlesPageState extends State<MyArticlesPage>
             context.read<UserArticlesBloc>().add(const RefreshUserArticles());
           }
         },
-        backgroundColor: const Color(0xFF3B5BDB),
+        backgroundColor: Theme.of(context).primaryColor,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark ? Colors.white : Colors.black;
+    final primaryColor = Theme.of(context).primaryColor;
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return AppBar(
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        icon: Icon(Icons.arrow_back, color: iconColor),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text(
+      title: Text(
         'My Articles',
         style: TextStyle(
-          color: Colors.black,
+          color: iconColor,
           fontWeight: FontWeight.w600,
         ),
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.black),
+          icon: Icon(Icons.search, color: iconColor),
           onPressed: () {
             // TODO: Implement search
           },
@@ -120,9 +125,9 @@ class _MyArticlesPageState extends State<MyArticlesPage>
       ],
       bottom: TabBar(
         controller: _tabController,
-        labelColor: const Color(0xFF3B5BDB),
-        unselectedLabelColor: Colors.grey[600],
-        indicatorColor: const Color(0xFF3B5BDB),
+        labelColor: primaryColor,
+        unselectedLabelColor: secondaryTextColor,
+        indicatorColor: primaryColor,
         indicatorWeight: 3,
         tabs: const [
           Tab(text: 'Saved'),
@@ -165,6 +170,9 @@ class _MyArticlesPageState extends State<MyArticlesPage>
   }
 
   Widget _buildEmptyState() {
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final primaryColor = Theme.of(context).primaryColor;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -172,14 +180,14 @@ class _MyArticlesPageState extends State<MyArticlesPage>
           Icon(
             Icons.article_outlined,
             size: 80,
-            color: Colors.grey[300],
+            color: secondaryTextColor.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
           Text(
             'No articles yet',
             style: TextStyle(
               fontSize: 18,
-              color: Colors.grey[600],
+              color: secondaryTextColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -188,7 +196,7 @@ class _MyArticlesPageState extends State<MyArticlesPage>
             'Start writing your first article!',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[500],
+              color: secondaryTextColor.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 24),
@@ -205,7 +213,7 @@ class _MyArticlesPageState extends State<MyArticlesPage>
             icon: const Icon(Icons.add),
             label: const Text('Create Article'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3B5BDB),
+              backgroundColor: primaryColor,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -219,6 +227,8 @@ class _MyArticlesPageState extends State<MyArticlesPage>
   }
 
   Widget _buildErrorState(String? message) {
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -233,7 +243,7 @@ class _MyArticlesPageState extends State<MyArticlesPage>
             message ?? 'Something went wrong',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey[600],
+              color: secondaryTextColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -359,19 +369,21 @@ class _ArticleListItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildImage(),
+            _buildImage(context),
             const SizedBox(width: 12),
-            Expanded(child: _buildContent()),
-            _buildPopupMenu(),
+            Expanded(child: _buildContent(context)),
+            _buildPopupMenu(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPopupMenu() {
+  Widget _buildPopupMenu(BuildContext context) {
+    final secondaryColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert, color: Colors.grey[600]),
+      icon: Icon(Icons.more_vert, color: secondaryColor),
       onSelected: (value) {
         switch (value) {
           case 'edit':
@@ -436,13 +448,17 @@ class _ArticleListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final placeholderColor = isDark ? Colors.grey[800] : Colors.grey[200];
+    final iconColor = isDark ? Colors.grey[600] : Colors.grey[400];
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: Container(
         width: 80,
         height: 80,
-        color: Colors.grey[200],
+        color: placeholderColor,
         child: article.thumbnailUrl != null
             ? CachedNetworkImage(
                 imageUrl: article.thumbnailUrl!,
@@ -452,19 +468,26 @@ class _ArticleListItem extends StatelessWidget {
                 ),
                 errorWidget: (context, url, error) => Icon(
                   Icons.image_outlined,
-                  color: Colors.grey[400],
+                  color: iconColor,
                 ),
               )
             : Icon(
                 Icons.image_outlined,
-                color: Colors.grey[400],
+                color: iconColor,
                 size: 32,
               ),
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final primaryColor = Theme.of(context).primaryColor;
+    final draftBgColor = isDark ? Colors.grey[700] : Colors.grey[200];
+    final draftTextColor = isDark ? Colors.grey[300] : Colors.grey[700];
+
     final timeAgo = _formatTimeAgo(
         article.updatedAt ?? article.createdAt ?? DateTime.now());
     final readTime = _calculateReadTime(article.content);
@@ -474,10 +497,10 @@ class _ArticleListItem extends StatelessWidget {
       children: [
         Text(
           article.title ?? '',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: textColor,
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -489,7 +512,7 @@ class _ArticleListItem extends StatelessWidget {
               : 'Saved $timeAgo • $readTime min read',
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: secondaryTextColor,
           ),
         ),
         const SizedBox(height: 4),
@@ -497,8 +520,8 @@ class _ArticleListItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
             color: article.isDraft
-                ? Colors.grey[200]
-                : const Color(0xFF3B5BDB).withOpacity(0.1),
+                ? draftBgColor
+                : primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
@@ -506,8 +529,7 @@ class _ArticleListItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color:
-                  article.isDraft ? Colors.grey[700] : const Color(0xFF3B5BDB),
+              color: article.isDraft ? draftTextColor : primaryColor,
               letterSpacing: 0.5,
             ),
           ),

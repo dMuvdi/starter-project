@@ -116,7 +116,8 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildHeader() {
     final primaryColor = Theme.of(context).primaryColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -359,8 +360,10 @@ class _HomePageState extends State<HomePage> {
   Widget _buildNewsCard(FeedItem item) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? Theme.of(context).cardTheme.color : Colors.white;
-    final shadowColor = isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.08);
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final shadowColor =
+        isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.08);
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
     final primaryColor = Theme.of(context).primaryColor;
 
     return GestureDetector(
@@ -519,7 +522,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildEmptyState() {
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return Center(
       child: Column(
@@ -553,7 +557,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildErrorState(String? message) {
-    final secondaryTextColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return Center(
       child: Column(
@@ -604,8 +609,10 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildBottomNav() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
-    final shadowColor = isDark ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.05);
+    final backgroundColor =
+        isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+    final shadowColor =
+        isDark ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.05);
 
     return Container(
       decoration: BoxDecoration(
@@ -637,7 +644,8 @@ class _HomePageState extends State<HomePage> {
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isSelected = _selectedNavIndex == index;
     final primaryColor = Theme.of(context).primaryColor;
-    final inactiveColor = Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+    final inactiveColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
 
     return GestureDetector(
       onTap: () {

@@ -29,7 +29,8 @@ class MyApp extends StatelessWidget {
           create: (context) => sl<AuthBloc>()..add(const CheckAuthStatus()),
         ),
         BlocProvider<RemoteArticlesBloc>(
-          create: (context) => sl<RemoteArticlesBloc>()..add(const GetArticles()),
+          create: (context) =>
+              sl<RemoteArticlesBloc>()..add(const GetArticles()),
         ),
         BlocProvider<UserArticlesBloc>(
           create: (context) => sl<UserArticlesBloc>(),

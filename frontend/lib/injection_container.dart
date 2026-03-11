@@ -46,9 +46,10 @@ final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   // ==================== Core ====================
-  final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+  final database =
+      await $FloorAppDatabase.databaseBuilder('app_database.db').build();
   sl.registerSingleton<AppDatabase>(database);
-  
+
   // Dio
   sl.registerSingleton<Dio>(Dio());
 
@@ -57,151 +58,106 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
 
   // Repository
-  sl.registerSingleton<ArticleRepository>(
-    ArticleRepositoryImpl(sl(), sl())
-  );
-  
+  sl.registerSingleton<ArticleRepository>(ArticleRepositoryImpl(sl(), sl()));
+
   // Use Cases
-  sl.registerSingleton<GetArticleUseCase>(
-    GetArticleUseCase(sl())
-  );
+  sl.registerSingleton<GetArticleUseCase>(GetArticleUseCase(sl()));
 
-  sl.registerSingleton<GetSavedArticleUseCase>(
-    GetSavedArticleUseCase(sl())
-  );
+  sl.registerSingleton<GetSavedArticleUseCase>(GetSavedArticleUseCase(sl()));
 
-  sl.registerSingleton<SaveArticleUseCase>(
-    SaveArticleUseCase(sl())
-  );
-  
-  sl.registerSingleton<RemoveArticleUseCase>(
-    RemoveArticleUseCase(sl())
-  );
+  sl.registerSingleton<SaveArticleUseCase>(SaveArticleUseCase(sl()));
+
+  sl.registerSingleton<RemoveArticleUseCase>(RemoveArticleUseCase(sl()));
 
   // Blocs
-  sl.registerFactory<RemoteArticlesBloc>(
-    () => RemoteArticlesBloc(sl())
-  );
+  sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl()));
 
   sl.registerFactory<LocalArticleBloc>(
-    () => LocalArticleBloc(sl(), sl(), sl())
-  );
+      () => LocalArticleBloc(sl(), sl(), sl()));
 
   // ==================== Auth Feature ====================
   // Data Sources
-  sl.registerSingleton<AuthRemoteDataSource>(
-    AuthRemoteDataSourceImpl()
-  );
+  sl.registerSingleton<AuthRemoteDataSource>(AuthRemoteDataSourceImpl());
 
   // Repository
   sl.registerSingleton<AuthRepository>(
-    AuthRepositoryImpl(sl<AuthRemoteDataSource>())
-  );
+      AuthRepositoryImpl(sl<AuthRemoteDataSource>()));
 
   // Use Cases
-  sl.registerSingleton<SignInUseCase>(
-    SignInUseCase(sl<AuthRepository>())
-  );
+  sl.registerSingleton<SignInUseCase>(SignInUseCase(sl<AuthRepository>()));
 
-  sl.registerSingleton<SignUpUseCase>(
-    SignUpUseCase(sl<AuthRepository>())
-  );
+  sl.registerSingleton<SignUpUseCase>(SignUpUseCase(sl<AuthRepository>()));
 
-  sl.registerSingleton<SignOutUseCase>(
-    SignOutUseCase(sl<AuthRepository>())
-  );
+  sl.registerSingleton<SignOutUseCase>(SignOutUseCase(sl<AuthRepository>()));
 
   sl.registerSingleton<GetCurrentUserUseCase>(
-    GetCurrentUserUseCase(sl<AuthRepository>())
-  );
+      GetCurrentUserUseCase(sl<AuthRepository>()));
 
   sl.registerSingleton<GetAuthStateChangesUseCase>(
-    GetAuthStateChangesUseCase(sl<AuthRepository>())
-  );
+      GetAuthStateChangesUseCase(sl<AuthRepository>()));
 
   // Bloc
-  sl.registerFactory<AuthBloc>(
-    () => AuthBloc(
-      signInUseCase: sl<SignInUseCase>(),
-      signUpUseCase: sl<SignUpUseCase>(),
-      signOutUseCase: sl<SignOutUseCase>(),
-      getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
-      getAuthStateChangesUseCase: sl<GetAuthStateChangesUseCase>(),
-    )
-  );
+  sl.registerFactory<AuthBloc>(() => AuthBloc(
+        signInUseCase: sl<SignInUseCase>(),
+        signUpUseCase: sl<SignUpUseCase>(),
+        signOutUseCase: sl<SignOutUseCase>(),
+        getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
+        getAuthStateChangesUseCase: sl<GetAuthStateChangesUseCase>(),
+      ));
 
   // ==================== User Articles Feature ====================
   // Data Sources
-  sl.registerSingleton<ArticleRemoteDataSource>(
-    ArticleRemoteDataSourceImpl()
-  );
+  sl.registerSingleton<ArticleRemoteDataSource>(ArticleRemoteDataSourceImpl());
 
   sl.registerSingleton<CloudinaryService>(
-    CloudinaryServiceImpl.fromEnv(dio: sl<Dio>())
-  );
+      CloudinaryServiceImpl.fromEnv(dio: sl<Dio>()));
 
   // Repository
-  sl.registerSingleton<UserArticleRepository>(
-    UserArticleRepositoryImpl(
-      articleRemoteDataSource: sl<ArticleRemoteDataSource>(),
-      cloudinaryService: sl<CloudinaryService>(),
-    )
-  );
+  sl.registerSingleton<UserArticleRepository>(UserArticleRepositoryImpl(
+    articleRemoteDataSource: sl<ArticleRemoteDataSource>(),
+    cloudinaryService: sl<CloudinaryService>(),
+  ));
 
   // Use Cases
   sl.registerSingleton<CreateArticleUseCase>(
-    CreateArticleUseCase(sl<UserArticleRepository>())
-  );
+      CreateArticleUseCase(sl<UserArticleRepository>()));
 
   sl.registerSingleton<UpdateArticleUseCase>(
-    UpdateArticleUseCase(sl<UserArticleRepository>())
-  );
+      UpdateArticleUseCase(sl<UserArticleRepository>()));
 
   sl.registerSingleton<DeleteArticleUseCase>(
-    DeleteArticleUseCase(sl<UserArticleRepository>())
-  );
+      DeleteArticleUseCase(sl<UserArticleRepository>()));
 
   sl.registerSingleton<GetUserArticlesUseCase>(
-    GetUserArticlesUseCase(sl<UserArticleRepository>())
-  );
+      GetUserArticlesUseCase(sl<UserArticleRepository>()));
 
   sl.registerSingleton<GetPublishedArticlesUseCase>(
-    GetPublishedArticlesUseCase(sl<UserArticleRepository>())
-  );
+      GetPublishedArticlesUseCase(sl<UserArticleRepository>()));
 
   sl.registerSingleton<GetArticlesByCategoryUseCase>(
-    GetArticlesByCategoryUseCase(sl<UserArticleRepository>())
-  );
+      GetArticlesByCategoryUseCase(sl<UserArticleRepository>()));
 
   sl.registerSingleton<PublishArticleUseCase>(
-    PublishArticleUseCase(sl<UserArticleRepository>())
-  );
+      PublishArticleUseCase(sl<UserArticleRepository>()));
 
   sl.registerSingleton<UploadImageUseCase>(
-    UploadImageUseCase(sl<UserArticleRepository>())
-  );
+      UploadImageUseCase(sl<UserArticleRepository>()));
 
   // Blocs/Cubits
-  sl.registerFactory<UserArticlesBloc>(
-    () => UserArticlesBloc(
-      getUserArticlesUseCase: sl<GetUserArticlesUseCase>(),
-      getPublishedArticlesUseCase: sl<GetPublishedArticlesUseCase>(),
-      getArticlesByCategoryUseCase: sl<GetArticlesByCategoryUseCase>(),
-      deleteArticleUseCase: sl<DeleteArticleUseCase>(),
-      publishArticleUseCase: sl<PublishArticleUseCase>(),
-    )
-  );
+  sl.registerFactory<UserArticlesBloc>(() => UserArticlesBloc(
+        getUserArticlesUseCase: sl<GetUserArticlesUseCase>(),
+        getPublishedArticlesUseCase: sl<GetPublishedArticlesUseCase>(),
+        getArticlesByCategoryUseCase: sl<GetArticlesByCategoryUseCase>(),
+        deleteArticleUseCase: sl<DeleteArticleUseCase>(),
+        publishArticleUseCase: sl<PublishArticleUseCase>(),
+      ));
 
-  sl.registerFactory<ArticleEditorCubit>(
-    () => ArticleEditorCubit(
-      createArticleUseCase: sl<CreateArticleUseCase>(),
-      updateArticleUseCase: sl<UpdateArticleUseCase>(),
-      publishArticleUseCase: sl<PublishArticleUseCase>(),
-      uploadImageUseCase: sl<UploadImageUseCase>(),
-    )
-  );
+  sl.registerFactory<ArticleEditorCubit>(() => ArticleEditorCubit(
+        createArticleUseCase: sl<CreateArticleUseCase>(),
+        updateArticleUseCase: sl<UpdateArticleUseCase>(),
+        publishArticleUseCase: sl<PublishArticleUseCase>(),
+        uploadImageUseCase: sl<UploadImageUseCase>(),
+      ));
 
-  sl.registerFactory<TtsCubit>(
-    () => TtsCubit(flutterTts: FlutterTts())
-  );
+  sl.registerFactory<TtsCubit>(() => TtsCubit(flutterTts: FlutterTts()));
 }

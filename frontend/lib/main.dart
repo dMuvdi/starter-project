@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:news_app_clean_architecture/config/routes/routes.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/remote/remote_article_event.dart';
 import 'firebase_options.dart';
@@ -18,6 +20,19 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize App Check - fail gracefully in development if network unavailable
+  try {
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: AndroidProvider.debug,
+      appleProvider: AppleProvider.debug,
+    );
+  } catch (e) {
+    if (kDebugMode) {
+      print('App Check initialization failed (continuing anyway): $e');
+    }
+  }
+
   await initializeDependencies();
 
   runApp(const MyApp());

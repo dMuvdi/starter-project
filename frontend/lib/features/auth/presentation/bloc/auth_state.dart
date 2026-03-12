@@ -89,3 +89,19 @@ class PasswordChangeError extends AuthState {
     UserEntity? user,
   }) : super(errorMessage: message, user: user);
 }
+
+/// State when sending password reset email
+class ForgotPasswordLoading extends AuthState {
+  const ForgotPasswordLoading();
+}
+
+/// State when password reset email sent successfully
+class ForgotPasswordEmailSent extends AuthState {
+  const ForgotPasswordEmailSent();
+}
+
+/// State when password reset email fails
+class ForgotPasswordError extends AuthState {
+  const ForgotPasswordError({required String message})
+      : super(errorMessage: message);
+}

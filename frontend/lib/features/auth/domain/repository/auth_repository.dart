@@ -41,4 +41,7 @@ abstract class AuthRepository {
     required String currentPassword,
     required String newPassword,
   });
+
+  /// Sends a password reset email to the given email address.
+  Future<DataState<void>> forgotPassword({required String email});
 }

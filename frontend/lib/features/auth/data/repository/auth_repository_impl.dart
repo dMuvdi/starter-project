@@ -109,19 +109,38 @@ class AuthRepositoryImpl implements AuthRepository {
       case 'user-not-found':
         return Exception('No user found with this email.');
       case 'wrong-password':
+      case 'invalid-credential':
         return Exception('Incorrect password.');
       case 'email-already-in-use':
         return Exception('An account already exists with this email.');
       case 'weak-password':
-        return Exception('Password is too weak.');
+        return Exception('Password is too weak. Use at least 6 characters.');
       case 'invalid-email':
         return Exception('Invalid email address.');
       case 'user-disabled':
         return Exception('This account has been disabled.');
       case 'too-many-requests':
         return Exception('Too many attempts. Please try again later.');
+      case 'requires-recent-login':
+        return Exception(
+            'Please sign out and sign in again before changing your password.');
+      case 'network-request-failed':
+        return Exception('Network error. Please check your connection.');
       default:
         return Exception(e.message ?? 'Authentication error occurred.');
+    }
+  }
+
+  @override
+  Future<DataState<void>> forgotPassword({required String email}) async {
+    try {
+      await _remoteDataSource.sendPasswordResetEmail(email: email);
+      return const DataSuccess(null);
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      return DataFailed(_mapFirebaseAuthException(e));
+    } catch (e) {
+      return DataFailed(
+          Exception('Failed to send reset email: ${e.toString()}'));
     }
   }
 }

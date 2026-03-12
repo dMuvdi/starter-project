@@ -13,6 +13,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/profile_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
 import '../../features/auth/presentation/pages/edit_profile_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 
 // User Articles Feature
 import '../../features/user_articles/domain/entities/user_article.dart';
@@ -40,6 +41,9 @@ class AppRoutes {
 
       case '/EditProfile':
         return _materialRoute(const EditProfilePage());
+
+      case '/ForgotPassword':
+        return _materialRoute(const ForgotPasswordPage());
 
       // User Articles routes
       case '/Home':

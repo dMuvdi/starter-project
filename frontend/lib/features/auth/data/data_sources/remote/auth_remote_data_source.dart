@@ -39,6 +39,9 @@ abstract class AuthRemoteDataSource {
     required String currentPassword,
     required String newPassword,
   });
+
+  /// Sends a password reset email.
+  Future<void> sendPasswordResetEmail({required String email});
 }
 
 /// Implementation of AuthRemoteDataSource using Firebase.
@@ -199,15 +202,40 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw Exception('User has no email');
     }
 
-    // Re-authenticate user with current password
-    final credential = firebase_auth.EmailAuthProvider.credential(
-      email: email,
-      password: currentPassword,
-    );
+    // Workaround for Firebase Auth plugin bug with reauthenticateWithCredential
+    // Sign out and sign back in to verify current password, then update
+    try {
+      // Sign out first
+      await _firebaseAuth.signOut();
 
-    await user.reauthenticateWithCredential(credential);
+      // Sign back in with current credentials to verify password
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: currentPassword,
+      );
 
-    // Update password
-    await user.updatePassword(newPassword);
+      // Now update password
+      await userCredential.user?.updatePassword(newPassword);
+    } on firebase_auth.FirebaseAuthException {
+      // Re-throw Firebase auth exceptions
+      rethrow;
+    } catch (e) {
+      // If we get here with a non-Firebase error, try to sign back in
+      // and rethrow the original error
+      try {
+        await _firebaseAuth.signInWithEmailAndPassword(
+          email: email,
+          password: currentPassword,
+        );
+      } catch (_) {
+        // Ignore sign-in error, throw original
+      }
+      throw Exception('Password change failed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    await _firebaseAuth.sendPasswordResetEmail(email: email);
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
@@ -17,63 +18,96 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _isSignUp = false;
   bool _obscurePassword = true;
+  String? _errorMessage;
+  Timer? _errorTimer;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _errorTimer?.cancel();
     super.dispose();
+  }
+
+  void _showError(String message) {
+    _errorTimer?.cancel();
+    setState(() {
+      _errorMessage = message;
+    });
+    _errorTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          _errorMessage = null;
+        });
+      }
+    });
+  }
+
+  void _dismissError() {
+    _errorTimer?.cancel();
+    if (_errorMessage != null) {
+      setState(() {
+        _errorMessage = null;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<AuthBloc, AuthState>(
+      body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
             Navigator.pushReplacementNamed(context, '/Home');
           }
           if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage ?? 'Authentication failed'),
-                backgroundColor: Colors.red,
-              ),
-            );
+            _showError(state.errorMessage ?? 'Authentication failed');
           }
         },
-        builder: (context, state) {
-          return SafeArea(
+        child: GestureDetector(
+          onTap: _dismissError,
+          behavior: HitTestBehavior.translucent,
+          child: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 60),
-                  _buildHeader(),
+                  _buildHeader(context),
                   const SizedBox(height: 48),
-                  _buildForm(state),
+                  if (_errorMessage != null) _buildErrorBanner(_errorMessage!),
+                  _buildForm(context),
                   const SizedBox(height: 24),
-                  _buildSubmitButton(state),
+                  _buildSubmitButton(),
+                  if (!_isSignUp) ...[
+                    const SizedBox(height: 12),
+                    _buildForgotPasswordLink(),
+                  ],
                   const SizedBox(height: 16),
                   _buildToggleButton(),
                 ],
               ),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return Column(
       children: [
         Container(
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: const Color(0xFF3B5BDB),
+            color: Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(20),
           ),
           child: const Icon(
@@ -85,10 +119,10 @@ class _LoginPageState extends State<LoginPage> {
         const SizedBox(height: 24),
         Text(
           _isSignUp ? 'Create Account' : 'Welcome Back',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: textColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -98,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
               : 'Sign in to continue reading and writing',
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey[600],
+            color: secondaryTextColor,
           ),
           textAlign: TextAlign.center,
         ),
@@ -106,7 +140,37 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildForm(AuthState state) {
+  Widget _buildErrorBanner(String message) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: Colors.red.shade700),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                color: Colors.red.shade700,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildForm(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fillColor = isDark ? Colors.grey[800] : Colors.grey[50];
+
     return Form(
       key: _formKey,
       child: Column(
@@ -114,6 +178,7 @@ class _LoginPageState extends State<LoginPage> {
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
+            onTap: _dismissError,
             decoration: InputDecoration(
               labelText: 'Email',
               hintText: 'Enter your email',
@@ -122,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: fillColor,
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -138,6 +203,7 @@ class _LoginPageState extends State<LoginPage> {
           TextFormField(
             controller: _passwordController,
             obscureText: _obscurePassword,
+            onTap: _dismissError,
             decoration: InputDecoration(
               labelText: 'Password',
               hintText: 'Enter your password',
@@ -156,7 +222,7 @@ class _LoginPageState extends State<LoginPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: fillColor,
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -173,47 +239,54 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildSubmitButton(AuthState state) {
-    final isLoading = state is AuthLoading;
+  Widget _buildSubmitButton() {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
 
-    return SizedBox(
-      height: 56,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : _onSubmit,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF3B5BDB),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              )
-            : Text(
-                _isSignUp ? 'Sign Up' : 'Sign In',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+        return SizedBox(
+          height: 56,
+          child: ElevatedButton(
+            onPressed: isLoading ? null : _onSubmit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-      ),
+            ),
+            child: isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    _isSignUp ? 'Sign Up' : 'Sign In',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildToggleButton() {
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           _isSignUp ? 'Already have an account?' : "Don't have an account?",
-          style: TextStyle(color: Colors.grey[600]),
+          style: TextStyle(color: secondaryTextColor),
         ),
         TextButton(
           onPressed: () {
@@ -223,13 +296,30 @@ class _LoginPageState extends State<LoginPage> {
           },
           child: Text(
             _isSignUp ? 'Sign In' : 'Sign Up',
-            style: const TextStyle(
-              color: Color(0xFF3B5BDB),
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildForgotPasswordLink() {
+    return Center(
+      child: TextButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/ForgotPassword');
+        },
+        child: Text(
+          'Forgot Password?',
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
     );
   }
 

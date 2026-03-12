@@ -7,6 +7,7 @@ import '../../domain/usecases/sign_in.dart';
 import '../../domain/usecases/sign_out.dart';
 import '../../domain/usecases/sign_up.dart';
 import '../../domain/usecases/change_password.dart';
+import '../../domain/usecases/forgot_password.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -17,6 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final GetAuthStateChangesUseCase _getAuthStateChangesUseCase;
   final ChangePasswordUseCase _changePasswordUseCase;
+  final ForgotPasswordUseCase _forgotPasswordUseCase;
 
   StreamSubscription<UserEntity?>? _authStateSubscription;
 
@@ -27,12 +29,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required GetCurrentUserUseCase getCurrentUserUseCase,
     required GetAuthStateChangesUseCase getAuthStateChangesUseCase,
     required ChangePasswordUseCase changePasswordUseCase,
+    required ForgotPasswordUseCase forgotPasswordUseCase,
   })  : _signInUseCase = signInUseCase,
         _signUpUseCase = signUpUseCase,
         _signOutUseCase = signOutUseCase,
         _getCurrentUserUseCase = getCurrentUserUseCase,
         _getAuthStateChangesUseCase = getAuthStateChangesUseCase,
         _changePasswordUseCase = changePasswordUseCase,
+        _forgotPasswordUseCase = forgotPasswordUseCase,
         super(const AuthInitial()) {
     on<CheckAuthStatus>(_onCheckAuthStatus);
     on<SignInRequested>(_onSignInRequested);
@@ -40,6 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignOutRequested>(_onSignOutRequested);
     on<AuthStateChanged>(_onAuthStateChanged);
     on<ChangePasswordRequested>(_onChangePasswordRequested);
+    on<ForgotPasswordRequested>(_onForgotPasswordRequested);
 
     // Start listening to auth state changes
     _startAuthStateListener();
@@ -64,11 +69,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthLoading());
 
-    final user = await _getCurrentUserUseCase();
+    try {
+      final user = await _getCurrentUserUseCase();
 
-    if (user != null) {
-      emit(Authenticated(user));
-    } else {
+      if (user != null) {
+        emit(Authenticated(user));
+      } else {
+        emit(const Unauthenticated());
+      }
+    } catch (e) {
+      // If there's an error checking auth status, treat as unauthenticated
       emit(const Unauthenticated());
     }
   }
@@ -184,6 +194,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(PasswordChangeError(
         message: errorString ?? 'Password change failed',
         user: currentUser,
+      ));
+    }
+  }
+
+  Future<void> _onForgotPasswordRequested(
+    ForgotPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const ForgotPasswordLoading());
+
+    final dataState = await _forgotPasswordUseCase(
+      params: ForgotPasswordParams(email: event.email),
+    );
+
+    if (dataState.exception == null) {
+      emit(const ForgotPasswordEmailSent());
+    } else {
+      final errorString = dataState.exception?.toString();
+      emit(ForgotPasswordError(
+        message: errorString ?? 'Failed to send reset email',
       ));
     }
   }

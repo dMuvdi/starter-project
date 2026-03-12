@@ -6,6 +6,7 @@ import 'package:news_app_clean_architecture/features/auth/domain/entities/user.d
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/sign_in.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/sign_up.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/usecases/change_password.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/usecases/forgot_password.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_event.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/auth_state.dart';
@@ -16,6 +17,9 @@ import '../../../../fixtures/test_fixtures.dart';
 // Manual mock for ChangePasswordUseCase until mocks are regenerated
 class MockChangePasswordUseCase extends Mock implements ChangePasswordUseCase {}
 
+// Manual mock for ForgotPasswordUseCase until mocks are regenerated
+class MockForgotPasswordUseCase extends Mock implements ForgotPasswordUseCase {}
+
 void main() {
   late AuthBloc authBloc;
   late MockSignInUseCase mockSignInUseCase;
@@ -24,6 +28,7 @@ void main() {
   late MockGetCurrentUserUseCase mockGetCurrentUserUseCase;
   late MockGetAuthStateChangesUseCase mockGetAuthStateChangesUseCase;
   late MockChangePasswordUseCase mockChangePasswordUseCase;
+  late MockForgotPasswordUseCase mockForgotPasswordUseCase;
 
   setUp(() {
     mockSignInUseCase = MockSignInUseCase();
@@ -32,6 +37,7 @@ void main() {
     mockGetCurrentUserUseCase = MockGetCurrentUserUseCase();
     mockGetAuthStateChangesUseCase = MockGetAuthStateChangesUseCase();
     mockChangePasswordUseCase = MockChangePasswordUseCase();
+    mockForgotPasswordUseCase = MockForgotPasswordUseCase();
 
     // Setup default stream for auth state changes
     when(mockGetAuthStateChangesUseCase.call())
@@ -44,6 +50,7 @@ void main() {
       getCurrentUserUseCase: mockGetCurrentUserUseCase,
       getAuthStateChangesUseCase: mockGetAuthStateChangesUseCase,
       changePasswordUseCase: mockChangePasswordUseCase,
+      forgotPasswordUseCase: mockForgotPasswordUseCase,
     );
   });
 

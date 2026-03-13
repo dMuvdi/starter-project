@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/services/secure_storage_service.dart';
 import 'theme_state.dart';
 
 class ThemeCubit extends Cubit<ThemeState> {
   static const String _themeKey = 'theme_mode';
+  final SecureStorageService _storageService;
 
-  ThemeCubit() : super(ThemeState.initial());
+  ThemeCubit({required SecureStorageService storageService})
+      : _storageService = storageService,
+        super(ThemeState.initial());
 
   /// Initialize theme from saved preferences
   Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedTheme = prefs.getString(_themeKey);
+    final savedTheme = await _storageService.read(_themeKey);
 
     if (savedTheme != null) {
       final themeMode = AppThemeMode.values.firstWhere(
@@ -37,8 +39,7 @@ class ThemeCubit extends Cubit<ThemeState> {
     _applyTheme(mode);
 
     // Save preference
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_themeKey, mode.name);
+    await _storageService.write(_themeKey, mode.name);
   }
 
   void _applyTheme(AppThemeMode mode) {

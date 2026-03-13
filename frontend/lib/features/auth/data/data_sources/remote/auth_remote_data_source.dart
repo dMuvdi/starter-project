@@ -202,36 +202,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw Exception('User has no email');
     }
 
-    // Workaround for Firebase Auth plugin bug with reauthenticateWithCredential
-    // Sign out and sign back in to verify current password, then update
-    try {
-      // Sign out first
-      await _firebaseAuth.signOut();
+    // Create credential for reauthentication
+    final credential = firebase_auth.EmailAuthProvider.credential(
+      email: email,
+      password: currentPassword,
+    );
 
-      // Sign back in with current credentials to verify password
-      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: currentPassword,
-      );
+    // Reauthenticate to verify current password
+    await user.reauthenticateWithCredential(credential);
 
-      // Now update password
-      await userCredential.user?.updatePassword(newPassword);
-    } on firebase_auth.FirebaseAuthException {
-      // Re-throw Firebase auth exceptions
-      rethrow;
-    } catch (e) {
-      // If we get here with a non-Firebase error, try to sign back in
-      // and rethrow the original error
-      try {
-        await _firebaseAuth.signInWithEmailAndPassword(
-          email: email,
-          password: currentPassword,
-        );
-      } catch (_) {
-        // Ignore sign-in error, throw original
-      }
-      throw Exception('Password change failed: ${e.toString()}');
-    }
+    // Update to new password
+    await user.updatePassword(newPassword);
   }
 
   @override

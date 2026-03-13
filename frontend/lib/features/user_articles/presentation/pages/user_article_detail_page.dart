@@ -238,23 +238,6 @@ class _ArticleDetailContent extends StatelessWidget {
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Follow author
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            ),
-            child: const Text(
-              'Follow',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
         ],
       ),
     );

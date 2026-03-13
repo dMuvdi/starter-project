@@ -21,6 +21,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ForgotPasswordUseCase _forgotPasswordUseCase;
 
   StreamSubscription<UserEntity?>? _authStateSubscription;
+  bool _isChangingPassword = false;
+  bool _isAuthenticating = false;
 
   AuthBloc({
     required SignInUseCase signInUseCase,
@@ -54,6 +56,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _authStateSubscription?.cancel();
     _authStateSubscription = _getAuthStateChangesUseCase().listen(
       (user) {
+        // Ignore auth state changes during authentication or password change
+        if (_isChangingPassword || _isAuthenticating) return;
+
         if (user != null) {
           add(const AuthStateChanged(isAuthenticated: true));
         } else {
@@ -88,24 +93,38 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
+    _isAuthenticating = true;
 
-    final dataState = await _signInUseCase(
-      params: SignInParams(
-        email: event.email,
-        password: event.password,
-      ),
-    );
+    try {
+      final dataState = await _signInUseCase(
+        params: SignInParams(
+          email: event.email,
+          password: event.password,
+        ),
+      );
 
-    if (dataState.data != null) {
-      emit(Authenticated(dataState.data!));
-    } else {
-      final errorString =
-          dataState.exception?.toString() ?? dataState.error?.toString();
-      final failure = _mapErrorToFailure(errorString);
+      if (dataState.data != null) {
+        emit(Authenticated(dataState.data!));
+      } else {
+        final errorMessage = _cleanErrorMessage(
+          dataState.exception?.toString() ?? dataState.error?.toString(),
+          'Sign in failed',
+        );
+        final failure = _mapErrorToFailure(errorMessage);
+        emit(AuthError(
+          message: errorMessage,
+          failure: failure,
+        ));
+      }
+    } catch (e) {
+      final errorMessage = _cleanErrorMessage(e.toString(), 'Sign in failed');
+      final failure = _mapErrorToFailure(errorMessage);
       emit(AuthError(
-        message: errorString ?? 'Sign in failed',
+        message: errorMessage,
         failure: failure,
       ));
+    } finally {
+      _isAuthenticating = false;
     }
   }
 
@@ -114,25 +133,39 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
+    _isAuthenticating = true;
 
-    final dataState = await _signUpUseCase(
-      params: SignUpParams(
-        email: event.email,
-        password: event.password,
-        displayName: event.displayName ?? '',
-      ),
-    );
+    try {
+      final dataState = await _signUpUseCase(
+        params: SignUpParams(
+          email: event.email,
+          password: event.password,
+          displayName: event.displayName ?? '',
+        ),
+      );
 
-    if (dataState.data != null) {
-      emit(Authenticated(dataState.data!));
-    } else {
-      final errorString =
-          dataState.exception?.toString() ?? dataState.error?.toString();
-      final failure = _mapErrorToFailure(errorString);
+      if (dataState.data != null) {
+        emit(Authenticated(dataState.data!));
+      } else {
+        final errorMessage = _cleanErrorMessage(
+          dataState.exception?.toString() ?? dataState.error?.toString(),
+          'Sign up failed',
+        );
+        final failure = _mapErrorToFailure(errorMessage);
+        emit(AuthError(
+          message: errorMessage,
+          failure: failure,
+        ));
+      }
+    } catch (e) {
+      final errorMessage = _cleanErrorMessage(e.toString(), 'Sign up failed');
+      final failure = _mapErrorToFailure(errorMessage);
       emit(AuthError(
-        message: errorString ?? 'Sign up failed',
+        message: errorMessage,
         failure: failure,
       ));
+    } finally {
+      _isAuthenticating = false;
     }
   }
 
@@ -162,7 +195,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(Authenticated(user));
       }
     } else {
-      emit(const Unauthenticated());
+      // Don't overwrite AuthError state - let the UI display the error
+      if (state is! AuthError) {
+        emit(const Unauthenticated());
+      }
     }
   }
 
@@ -178,23 +214,39 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     emit(PasswordChanging(currentUser));
 
-    final dataState = await _changePasswordUseCase(
-      params: ChangePasswordParams(
-        currentPassword: event.currentPassword,
-        newPassword: event.newPassword,
-      ),
-    );
+    // Pause auth state listener during password change
+    _isChangingPassword = true;
 
-    if (dataState.exception == null) {
-      emit(PasswordChanged(currentUser));
-      // Return to authenticated state after brief success indication
-      emit(Authenticated(currentUser));
-    } else {
-      final errorString = dataState.exception?.toString();
-      emit(PasswordChangeError(
-        message: errorString ?? 'Password change failed',
-        user: currentUser,
-      ));
+    try {
+      final dataState = await _changePasswordUseCase(
+        params: ChangePasswordParams(
+          currentPassword: event.currentPassword,
+          newPassword: event.newPassword,
+        ),
+      );
+
+      if (dataState.exception == null) {
+        // Get fresh user data after password change
+        final updatedUser = await _getCurrentUserUseCase();
+        emit(PasswordChanged(updatedUser ?? currentUser));
+        // Return to authenticated state after brief success indication
+        emit(Authenticated(updatedUser ?? currentUser));
+      } else {
+        final errorMessage = _cleanErrorMessage(
+          dataState.exception?.toString(),
+          'Password change failed',
+        );
+
+        emit(PasswordChangeError(
+          message: errorMessage,
+          user: currentUser,
+        ));
+        // Return to authenticated state so UI can recover
+        emit(Authenticated(currentUser));
+      }
+    } finally {
+      // Resume auth state listener
+      _isChangingPassword = false;
     }
   }
 
@@ -211,11 +263,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (dataState.exception == null) {
       emit(const ForgotPasswordEmailSent());
     } else {
-      final errorString = dataState.exception?.toString();
-      emit(ForgotPasswordError(
-        message: errorString ?? 'Failed to send reset email',
-      ));
+      final errorMessage = _cleanErrorMessage(
+        dataState.exception?.toString(),
+        'Failed to send reset email',
+      );
+      emit(ForgotPasswordError(message: errorMessage));
     }
+  }
+
+  /// Cleans error message by removing "Exception: " prefix
+  String _cleanErrorMessage(String? error, String defaultMessage) {
+    if (error == null || error.isEmpty) return defaultMessage;
+
+    // Remove "Exception: " prefix if present
+    if (error.startsWith('Exception: ')) {
+      return error.substring(11);
+    }
+    return error;
   }
 
   AuthFailure _mapErrorToFailure(String? error) {

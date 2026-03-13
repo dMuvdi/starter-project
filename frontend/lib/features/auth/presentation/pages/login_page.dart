@@ -55,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocListener<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
             Navigator.pushReplacementNamed(context, '/Home');
@@ -64,33 +64,39 @@ class _LoginPageState extends State<LoginPage> {
             _showError(state.errorMessage ?? 'Authentication failed');
           }
         },
-        child: GestureDetector(
-          onTap: _dismissError,
-          behavior: HitTestBehavior.translucent,
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 60),
-                  _buildHeader(context),
-                  const SizedBox(height: 48),
-                  if (_errorMessage != null) _buildErrorBanner(_errorMessage!),
-                  _buildForm(context),
-                  const SizedBox(height: 24),
-                  _buildSubmitButton(),
-                  if (!_isSignUp) ...[
-                    const SizedBox(height: 12),
-                    _buildForgotPasswordLink(),
+        builder: (context, state) {
+          // Also check bloc state directly for errors
+          final blocError = state is AuthError ? state.errorMessage : null;
+          final displayError = _errorMessage ?? blocError;
+
+          return GestureDetector(
+            onTap: _dismissError,
+            behavior: HitTestBehavior.translucent,
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 60),
+                    _buildHeader(context),
+                    const SizedBox(height: 48),
+                    if (displayError != null) _buildErrorBanner(displayError),
+                    _buildForm(context),
+                    const SizedBox(height: 24),
+                    _buildSubmitButton(),
+                    if (!_isSignUp) ...[
+                      const SizedBox(height: 12),
+                      _buildForgotPasswordLink(),
+                    ],
+                    const SizedBox(height: 16),
+                    _buildToggleButton(),
                   ],
-                  const SizedBox(height: 16),
-                  _buildToggleButton(),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -324,6 +330,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onSubmit() {
+    // Clear any existing errors when user tries again
+    _dismissError();
+
     if (_formKey.currentState!.validate()) {
       if (_isSignUp) {
         context.read<AuthBloc>().add(SignUpRequested(

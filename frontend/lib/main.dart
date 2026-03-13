@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ThemeCubit>(
-          create: (context) => ThemeCubit()..init(),
+          create: (context) => sl<ThemeCubit>()..init(),
         ),
         BlocProvider<AuthBloc>(
           create: (context) => sl<AuthBloc>()..add(const CheckAuthStatus()),

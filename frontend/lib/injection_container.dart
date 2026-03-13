@@ -2,6 +2,10 @@ import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
+// Core
+import 'core/services/secure_storage_service.dart';
+import 'config/theme/theme_cubit.dart';
+
 // Daily News Feature
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/news_api_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/article_repository_impl.dart';
@@ -54,6 +58,13 @@ Future<void> initializeDependencies() async {
 
   // Dio
   sl.registerSingleton<Dio>(Dio());
+
+  // Secure Storage
+  sl.registerSingleton<SecureStorageService>(SecureStorageServiceImpl());
+
+  // Theme
+  sl.registerFactory<ThemeCubit>(
+      () => ThemeCubit(storageService: sl<SecureStorageService>()));
 
   // ==================== Daily News Feature ====================
   // Data Sources

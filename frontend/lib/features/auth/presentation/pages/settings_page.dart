@@ -17,10 +17,7 @@ class _SettingsPageState extends State<SettingsPage> {
     'English',
     'Spanish',
     'French',
-    'German',
     'Portuguese',
-    'Chinese',
-    'Japanese',
   ];
 
   @override

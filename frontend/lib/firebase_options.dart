@@ -16,6 +16,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -53,21 +54,22 @@ class DefaultFirebaseOptions {
 
   // Run `flutterfire configure` to generate actual values
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBkvDJ4f5hCMkyU8lmHGuPB9bWvfuTx5CI',
+  static final FirebaseOptions android = FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY'] ?? '',
     appId: '1:183918776774:android:0717c6d50e2f0c85cca2c7',
     messagingSenderId: '183918776774',
     projectId: 'news-app-82335',
     storageBucket: 'news-app-82335.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBFujKUREmgMmwrwhcCvVcvs064ab1ds_c',
+  static final FirebaseOptions ios = FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_IOS_API_KEY'] ?? '',
     appId: '1:183918776774:ios:af3b04c8e3e4f605cca2c7',
     messagingSenderId: '183918776774',
     projectId: 'news-app-82335',
     storageBucket: 'news-app-82335.firebasestorage.app',
-    iosClientId: '183918776774-slvusbqh8c97r7rl47phk9q6lloobb2p.apps.googleusercontent.com',
+    iosClientId:
+        '183918776774-slvusbqh8c97r7rl47phk9q6lloobb2p.apps.googleusercontent.com',
     iosBundleId: 'com.example.newsAppCleanArchitecture',
   );
 }

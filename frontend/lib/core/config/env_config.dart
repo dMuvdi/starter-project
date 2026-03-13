@@ -1,12 +1,12 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// Environment configuration for the app.
-/// Values are injected at build time using --dart-define flags.
+/// Values are loaded from .env file using flutter_dotenv.
 ///
 /// Usage:
-/// ```bash
-/// flutter run --dart-define=CLOUDINARY_CLOUD_NAME=your_name \
-///             --dart-define=CLOUDINARY_UPLOAD_PRESET=your_preset \
-///             --dart-define=ENV=development
-/// ```
+/// 1. Copy .env.example to .env
+/// 2. Fill in your values in .env
+/// 3. The .env file is automatically loaded in main.dart
 class EnvConfig {
   // Private constructor to prevent instantiation
   EnvConfig._();
@@ -16,10 +16,7 @@ class EnvConfig {
   // ============================================
 
   /// Current environment (development, staging, production)
-  static const String environment = String.fromEnvironment(
-    'ENV',
-    defaultValue: 'development',
-  );
+  static String get environment => dotenv.env['ENV'] ?? 'development';
 
   /// Whether the app is running in development mode
   static bool get isDevelopment => environment == 'development';
@@ -33,10 +30,7 @@ class EnvConfig {
 
   /// NewsAPI.org API key for fetching news articles.
   /// Get this from https://newsapi.org/register
-  static const String newsApiKey = String.fromEnvironment(
-    'NEWS_API_KEY',
-    defaultValue: '',
-  );
+  static String get newsApiKey => dotenv.env['NEWS_API_KEY'] ?? '';
 
   // ============================================
   // CLOUDINARY CONFIGURATION
@@ -44,17 +38,13 @@ class EnvConfig {
 
   /// Cloudinary cloud name for image uploads.
   /// Get this from your Cloudinary Dashboard.
-  static const String cloudinaryCloudName = String.fromEnvironment(
-    'CLOUDINARY_CLOUD_NAME',
-    defaultValue: '',
-  );
+  static String get cloudinaryCloudName =>
+      dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
 
   /// Cloudinary upload preset for unsigned uploads.
   /// Create this in Cloudinary Settings → Upload → Upload Presets.
-  static const String cloudinaryUploadPreset = String.fromEnvironment(
-    'CLOUDINARY_UPLOAD_PRESET',
-    defaultValue: 'xg3gxg9w',
-  );
+  static String get cloudinaryUploadPreset =>
+      dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '';
 
   // ============================================
   // FIREBASE CONFIGURATION (Optional overrides)
@@ -63,34 +53,22 @@ class EnvConfig {
   // generated via `flutterfire configure`. These are optional overrides.
 
   /// Firebase API Key (optional override)
-  static const String firebaseApiKey = String.fromEnvironment(
-    'FIREBASE_API_KEY',
-    defaultValue: '',
-  );
+  static String get firebaseApiKey => dotenv.env['FIREBASE_API_KEY'] ?? '';
 
   /// Firebase Project ID (optional override)
-  static const String firebaseProjectId = String.fromEnvironment(
-    'FIREBASE_PROJECT_ID',
-    defaultValue: '',
-  );
+  static String get firebaseProjectId =>
+      dotenv.env['FIREBASE_PROJECT_ID'] ?? '';
 
   /// Firebase Auth Domain (optional override)
-  static const String firebaseAuthDomain = String.fromEnvironment(
-    'FIREBASE_AUTH_DOMAIN',
-    defaultValue: '',
-  );
+  static String get firebaseAuthDomain =>
+      dotenv.env['FIREBASE_AUTH_DOMAIN'] ?? '';
 
   /// Firebase Messaging Sender ID (optional override)
-  static const String firebaseMessagingSenderId = String.fromEnvironment(
-    'FIREBASE_MESSAGING_SENDER_ID',
-    defaultValue: '',
-  );
+  static String get firebaseMessagingSenderId =>
+      dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '';
 
   /// Firebase App ID (optional override)
-  static const String firebaseAppId = String.fromEnvironment(
-    'FIREBASE_APP_ID',
-    defaultValue: '',
-  );
+  static String get firebaseAppId => dotenv.env['FIREBASE_APP_ID'] ?? '';
 
   // ============================================
   // VALIDATION
@@ -114,8 +92,8 @@ class EnvConfig {
     if (missingVars.isNotEmpty) {
       throw Exception(
         'Missing required environment variables: ${missingVars.join(', ')}\n'
-        'Run with: flutter run --dart-define=VARIABLE_NAME=value\n'
-        'See docs/ENV_CONFIG.md for setup instructions.',
+        'Make sure you have a .env file with all required values.\n'
+        'See .env.example for reference.',
       );
     }
   }

@@ -2,10 +2,8 @@ import 'package:news_app_clean_architecture/core/config/env_config.dart';
 
 const String newsAPIBaseURL = 'https://newsapi.org/v2';
 
-/// API key from environment variable, with fallback for development
-String get newsAPIKey => EnvConfig.newsApiKey.isNotEmpty
-    ? EnvConfig.newsApiKey
-    : '344e0a0ca5fb4898aaa44edd24855f29'; // fallback for dev
+/// API key from environment variable
+String get newsAPIKey => EnvConfig.newsApiKey;
 const String countryQuery = 'us';
 const String categoryQuery = 'general';
 const String kDefaultImage =

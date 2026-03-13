@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:news_app_clean_architecture/config/routes/routes.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/remote/remote_article_event.dart';
 import 'firebase_options.dart';
@@ -14,9 +15,26 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/user_articles/presentation/bloc/user_articles/user_articles_bloc.dart';
 import 'injection_container.dart';
+import 'core/config/env_config.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: '.env');
+
+  // Debug: Print environment configuration status
+  if (kDebugMode) {
+    print('=== Environment Configuration ===');
+    print(
+        'NEWS_API_KEY: ${EnvConfig.newsApiKey.isNotEmpty ? "✓ Loaded (${EnvConfig.newsApiKey.substring(0, 8)}...)" : "✗ NOT SET"}');
+    print(
+        'CLOUDINARY_CLOUD_NAME: ${EnvConfig.cloudinaryCloudName.isNotEmpty ? "✓ Loaded" : "✗ NOT SET"}');
+    print(
+        'CLOUDINARY_UPLOAD_PRESET: ${EnvConfig.cloudinaryUploadPreset.isNotEmpty ? "✓ Loaded" : "✗ NOT SET"}');
+    print('================================');
+  }
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

@@ -233,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
           icon: Icons.settings_outlined,
           iconColor: isDark ? Colors.grey[400]! : Colors.grey[600]!,
           title: 'Settings',
-          subtitle: 'Theme and language',
+          subtitle: 'Theme',
           onTap: () {
             Navigator.pushNamed(context, '/Settings');
           },

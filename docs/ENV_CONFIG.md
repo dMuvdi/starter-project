@@ -12,7 +12,7 @@ The app uses build-time environment variables injected via `--dart-define` flags
 
 ### 1. Cloudinary (Image Storage)
 
-We use Cloudinary instead of Firebase Storage to reduce costs (free tier available).
+We use Cloudinary for article cover images and user profile pictures with global CDN delivery.
 
 **Setup Steps:**
 1. Create a free account at [cloudinary.com](https://cloudinary.com)
@@ -20,35 +20,20 @@ We use Cloudinary instead of Firebase Storage to reduce costs (free tier availab
 3. Go to **Settings → Upload → Upload Presets**
 4. Click **Add upload preset**
 5. Configure:
-   - **Preset name:** `symmetry_news_unsigned`
+   - **Preset name:** Custom name (e.g., `xg3gxg9w`)
    - **Signing Mode:** `Unsigned`
-   - **Folder:** `articles`
-6. Save the preset
+   - **Folder:** `articles` (for article images)
+6. Save the preset name
 
 **Required Variables:**
 | Variable | Description |
 |----------|-------------|
 | `CLOUDINARY_CLOUD_NAME` | Your cloud name from Dashboard |
-| `CLOUDINARY_UPLOAD_PRESET` | Upload preset name (default: `symmetry_news_unsigned`) |
+| `CLOUDINARY_UPLOAD_PRESET` | Your unsigned upload preset name |
 
 ---
 
-### 2. News API (News Data)
-
-We use NewsAPI.org to fetch news articles.
-
-**Setup Steps:**
-1. Create a free account at [newsapi.org](https://newsapi.org/register)
-2. Get your **API Key** from the account page
-
-**Required Variables:**
-| Variable | Description |
-|----------|-------------|
-| `NEWS_API_KEY` | Your API key from NewsAPI.org |
-
----
-
-### 3. Firebase
+### 2. Firebase
 
 Firebase handles authentication (Firebase Auth) and database (Firestore).
 
@@ -99,6 +84,24 @@ flutter run --release \
   --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
   --dart-define=CLOUDINARY_UPLOAD_PRESET=symmetry_news_unsigned \
   --dart-define=ENV=production
+```-d <device_id> \
+  --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
+  --dart-define=CLOUDINARY_UPLOAD_PRESET=your_upload_preset
+```
+
+Example:
+```bash
+flutter run -d emulator-5554 \
+  --dart-define=CLOUDINARY_CLOUD_NAME=dgi3u8chm \
+  --dart-define=CLOUDINARY_UPLOAD_PRESET=xg3gxg9w
+```
+
+### Production
+
+```bash
+flutter run --release -d <device_id> \
+  --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
+  --dart-define=CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 ```
 
 ### Using a Shell Script (Recommended)
@@ -109,32 +112,17 @@ Create a `run_dev.sh` script for convenience:
 #!/bin/bash
 # run_dev.sh - Run app in development mode
 
-flutter run \
-  --dart-define=NEWS_API_KEY=your_news_api_key \
-  --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
-  --dart-define=CLOUDINARY_UPLOAD_PRESET=symmetry_news_unsigned \
-  --dart-define=ENV=development
-```
+DEVICE_ID=${1:-emulator-5554}
 
-Make it executable:
+flutter run -d $DEVICE_ID \
+  -CLOUDINARY_CLOUD_NAME` | **Yes** | - | Cloudinary cloud name |
+| `CLOUDINARY_UPLOAD_PRESET` | **Yes** | - | Unsigned upload preset name
+Make it executable and run:
 ```bash
 chmod +x run_dev.sh
-./run_dev.sh
-```
-
----
-
-## Environment Variables Reference
-
-### Required Variables
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `NEWS_API_KEY` | **Yes** | - | NewsAPI.org API key |
-| `CLOUDINARY_CLOUD_NAME` | **Yes** | - | Cloudinary cloud name |
-| `CLOUDINARY_UPLOAD_PRESET` | No | `xg3gxg9w` | Upload preset for images |
-| `ENV` | No | `development` | Environment: `development` or `production` |
-
+./run_dev.sh                    # Uses default emulator-5554
+./run_dev.sh chrome             # Runs on Chrome
+./run_dev.sh <your-device-id>   # Runs on specific device
 ### Optional Firebase Overrides
 
 These are optional and only needed if you want to override `firebase_options.dart`:
@@ -161,35 +149,42 @@ To run this project:
 
 2. **Set up Firebase**
    ```bash
-   cd frontend
-   flutterfire configure
-   ```
+   
+   Follow the prompts to select your Firebase project.
 
 3. **Set up Cloudinary**
    - Create account at [cloudinary.com](https://cloudinary.com)
-   - Note your Cloud Name
-   - Create unsigned upload preset
+   - Note your **Cloud Name** from the dashboard
+   - Go to Settings → Upload → Upload Presets
+   - Create an **unsigned upload preset**
+   - Note the preset name
 
-4. **Set up News API**
-   - Create account at [newsapi.org](https://newsapi.org/register)
-   - Note your API Key
-
-5. **Deploy backend rules**
+4. **Deploy Firebase Security Rules**
    ```bash
    cd backend
-   firebase deploy --only firestore
+   firebase deploy --only firestore:rules
+   ```
+
+5. **Get Dependencies**
+   ```bash
+   cd frontend
+   flutter pub get
    ```
 
 6. **Run the app**
    ```bash
    cd frontend
-   flutter run \
+   
+   # Replace with your actual values
+   flutter run -d emulator-5554 \
+     --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
+     --dart-define=CLOUDINARY_UPLOAD_PRESET=your_upload_prese
      --dart-define=NEWS_API_KEY=your_news_api_key \
      --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
      --dart-define=ENV=development
-   ```
-
----
+   ```-d <device_id> \
+  --dart-define=CLOUDINARY_CLOUD_NAME=your_cloud_name \
+  --dart-define=CLOUDINARY_UPLOAD_PRESET=your_preset
 
 ## Troubleshooting
 
@@ -211,10 +206,26 @@ Run `flutterfire configure` to generate `firebase_options.dart`.
 1. Verify your cloud name is correct
 2. Ensure the upload preset exists and is set to "Unsigned"
 3. Check that the preset folder matches your configuration
+✅ Never commit actual Cloudinary credentials to the repository
+- ✅ Use `--dart-define` for build-time injection of sensitive data
+- ✅ Firebase credentials in `firebase_options.dart` are safe to commit (they're client-side keys protected by Firebase Security Rules)
+- ✅ Cloudinary unsigned upload presets are safe for client-side use (configure allowed folders and file types in Cloudinary settings)
+- ⚠️ For production, consider server-side image uploads with signed requests for additional security
 
----
+## Additional Notes
 
-## Security Notes
+### Why No NEWS_API_KEY?
+
+This app focuses on **user-generated content** (articles created by authenticated users), not fetching external news. The `daily_news` feature exists in the codebase but is not actively used in the main article publishing workflow.
+
+### Cloudinary vs Firebase Storage
+
+We chose Cloudinary over Firebase Storage because:
+- Global CDN with faster image delivery
+- Advanced image transformations and optimization
+- Generous free tier (25GB storage, 25GB bandwidth/month)
+- Simpler integration with unsigned uploads
+- Better scalability for high-traffic scenarios
 
 - Never commit actual credentials to the repository
 - Use `--dart-define` for build-time injection
